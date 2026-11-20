@@ -1,16 +1,4 @@
-import {
-  createUserWithEmailAndPassword,
-  getRedirectResult,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signInWithRedirect,
-  signOut,
-  updateProfile,
-  type User,
-} from 'firebase/auth'
-import { collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
-import { getFirebaseAuth, getFirebaseDb } from './firebase'
+import * as backend from './localBackend'
 import {
   buildScopeAuditRecord,
   resolveTrack,
@@ -76,7 +64,7 @@ export function firstName(name: string): string {
   return name.trim().split(' ')[0]
 }
 
-/** Maps Firebase Auth error codes to messages safe to show in the UI. */
+/** Maps auth error codes to messages safe to show in the UI. */
 export function getAuthErrorMessage(err: unknown): string {
   const code = (err as { code?: string } | null | undefined)?.code
   switch (code) {
@@ -99,149 +87,74 @@ export function getAuthErrorMessage(err: unknown): string {
       return 'Your browser blocked the sign-in popup. Please allow popups and try again.'
     case 'auth/account-exists-with-different-credential':
       return 'An account with this email already exists using a different sign-in method. Try signing in with your password instead.'
-    case 'auth/unauthorized-domain':
-      return 'This site isn’t authorized for Google sign-in yet. Add this domain in Firebase Console → Authentication → Settings → Authorized domains.'
+    case 'auth/operation-not-allowed':
+      return 'Google sign-in isn’t available right now. Please sign up with your email and password.'
     default:
       return 'Something went wrong. Please try again.'
   }
 }
 
 /**
- * Creates a real Firebase Auth account + Firestore profile. This is the
- * Associate (free) signup path only — Firestore security rules only allow
- * a client to self-create a doc with tier 'Associate'/status 'active', so
- * this is intentionally not parameterised by pending.tier.
+ * Creates the Associate account + profile. Backend-free: stored locally in this
+ * browser (see lib/localBackend.ts). The signature is unchanged so a real
+ * backend can be reconnected here without touching any page.
  */
 export async function signUpAssociate(pending: AssociateSignupInput): Promise<void> {
-  const credential = await createUserWithEmailAndPassword(getFirebaseAuth(), pending.email, pending.password)
-  await updateProfile(credential.user, { displayName: pending.name })
-  await setDoc(doc(getFirebaseDb(), 'users', credential.user.uid), {
-    uid: credential.user.uid,
+  backend.createAccount(pending.email, pending.password, {
     name: pending.name,
-    email: pending.email,
     country: pending.country,
     organisation: pending.organisation,
     tier: 'Associate',
     status: 'active',
     newsletterConsent: pending.newsletterConsent,
     memberId: generateMemberId(),
-    createdAt: serverTimestamp(),
-  })
-}
-
-// Carries the newsletter-consent choice across a full-page redirect sign-in,
-// since the redirect leaves and reloads the app before we can create the
-// profile. Only set right before a redirect; read + cleared on return.
-const GOOGLE_CONSENT_KEY = 'aipea_google_consent'
-
-/**
- * Creates the Associate Firestore profile for a first-time Google user — the
- * same shape and rules-allowed fields as the password signup path, so the
- * existing onUserProfileCreated Cloud Function sends the welcome email with no
- * backend changes. No-op for returning users who already have a profile.
- */
-async function ensureGoogleProfile(user: User, newsletterConsent: boolean): Promise<void> {
-  const userRef = doc(getFirebaseDb(), 'users', user.uid)
-  const existing = await getDoc(userRef)
-  if (existing.exists()) return
-  await setDoc(userRef, {
-    uid: user.uid,
-    name: user.displayName || user.email?.split('@')[0] || 'AIPEA Member',
-    email: user.email ?? '',
-    country: '',
-    organisation: '',
-    tier: 'Associate',
-    status: 'active',
-    newsletterConsent,
-    memberId: generateMemberId(),
-    createdAt: serverTimestamp(),
   })
 }
 
 /**
- * Google sign-in / signup. Tries the popup first; if the browser blocks the
- * popup (popup blockers, Safari/Brave defaults, mobile), it falls back to a
- * full-page redirect, which no browser can block. The redirect leaves the app,
- * so profile creation on return is handled by completeGoogleRedirect() — this
- * function does not resolve in the redirect case (the page navigates away).
+ * Google sign-in needs a backend identity provider, which is disconnected, so
+ * this reports a friendly error instead of starting a popup.
  */
-export async function continueWithGoogle(newsletterConsent = false): Promise<void> {
-  const auth = getFirebaseAuth()
-  const provider = new GoogleAuthProvider()
-  try {
-    const credential = await signInWithPopup(auth, provider)
-    await ensureGoogleProfile(credential.user, newsletterConsent)
-  } catch (err) {
-    const code = (err as { code?: string } | null)?.code
-    if (code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-environment') {
-      // Persist consent so completeGoogleRedirect() can apply it after return.
-      try {
-        localStorage.setItem(GOOGLE_CONSENT_KEY, newsletterConsent ? '1' : '0')
-      } catch {
-        // localStorage unavailable — profile just defaults to no consent.
-      }
-      await signInWithRedirect(auth, provider)
-      return // page navigates away; nothing after this runs
-    }
-    throw err
-  }
+export async function continueWithGoogle(_newsletterConsent = false): Promise<void> {
+  void _newsletterConsent
+  throw { code: 'auth/operation-not-allowed' }
 }
 
-/**
- * Completes a redirect-based Google sign-in when the tab returns. Safe to call
- * on every mount of the auth pages: resolves to false when there is no pending
- * redirect result, true when a redirect sign-in just completed (profile
- * ensured). Rethrows real auth errors for the caller to surface.
- */
+/** No redirect sign-in exists without a backend: nothing to complete. */
 export async function completeGoogleRedirect(): Promise<boolean> {
-  const result = await getRedirectResult(getFirebaseAuth())
-  if (!result?.user) return false
-  let consent = false
-  try {
-    consent = localStorage.getItem(GOOGLE_CONSENT_KEY) === '1'
-    localStorage.removeItem(GOOGLE_CONSENT_KEY)
-  } catch {
-    // ignore storage errors; default consent already false
-  }
-  await ensureGoogleProfile(result.user, consent)
-  return true
+  return false
 }
 
 export async function signInMember(email: string, password: string): Promise<void> {
-  await signInWithEmailAndPassword(getFirebaseAuth(), email, password)
+  backend.signIn(email, password)
 }
 
 export async function signOutMember(): Promise<void> {
-  await signOut(getFirebaseAuth())
+  backend.signOutLocal()
 }
 
 /** Lets a member update where they work when their employer changes. */
 export async function updateOrganisation(organisation: string): Promise<void> {
-  const user = getFirebaseAuth().currentUser
-  if (!user) throw new Error('You must be signed in to update your organisation.')
-  await updateDoc(doc(getFirebaseDb(), 'users', user.uid), { organisation: organisation.trim() })
+  const session = backend.getSession()
+  if (!session) throw new Error('You must be signed in to update your organisation.')
+  backend.updateProfileFields(session.uid, { organisation: organisation.trim() })
 }
 
 /**
- * Persists a completed Professional Scope Audit under the signed-in member,
- * updates their recommended track, and creates a scopeAudits doc that triggers
- * the post-audit email Cloud Function.
+ * Stores a completed Professional Scope Audit under the signed-in member and
+ * updates their recommended track (local only; no email is sent).
  */
 export async function saveScopeAudit(
   horizon: HorizonId,
   scope: ScopeLevel,
 ): Promise<TrackFinderResult> {
-  const auth = getFirebaseAuth()
-  const user = auth.currentUser
-  if (!user) throw new Error('You must be signed in to save your track audit.')
+  const session = backend.getSession()
+  if (!session) throw new Error('You must be signed in to save your track audit.')
 
   const result = resolveTrack(horizon, scope)
-  const db = getFirebaseDb()
-  const auditRef = doc(collection(db, 'users', user.uid, 'scopeAudits'))
-  const record = buildScopeAuditRecord(result, serverTimestamp())
-
-  await setDoc(auditRef, record)
-  await updateDoc(doc(db, 'users', user.uid), {
+  const now = new Date().toISOString()
+  const auditId = backend.addScopeAudit(session.uid, buildScopeAuditRecord(result, now))
+  backend.updateProfileFields(session.uid, {
     recommendedTrack: {
       acronym: result.track.acronym,
       name: result.track.name,
@@ -249,10 +162,9 @@ export async function saveScopeAudit(
       strandName: result.strand.name,
       scope: result.scope,
       horizon: result.horizon,
-      auditedAt: serverTimestamp(),
-      latestAuditId: auditRef.id,
     },
   })
+  void auditId
 
   return result
 }

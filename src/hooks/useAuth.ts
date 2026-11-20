@@ -1,9 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { onAuthStateChanged, type User } from 'firebase/auth'
-import { doc, onSnapshot, Timestamp } from 'firebase/firestore'
-import { getFirebaseAuth, getFirebaseDb } from '@/lib/firebase'
+import { useMemo, useSyncExternalStore } from 'react'
+import { getSession, snapshotRaw, subscribe, type SessionUser } from '@/lib/localBackend'
 import type { MembershipTier } from '@/lib/auth'
 
 export interface MemberProfile {
@@ -27,63 +25,36 @@ export interface MemberProfile {
 }
 
 interface UseAuthResult {
-  user: User | null
+  user: SessionUser | null
   profile: MemberProfile | null
   loading: boolean
 }
 
-/** Real Firebase Auth session + the matching users/{uid} Firestore profile. */
+const noopSubscribe = () => () => {}
+
+/**
+ * Local session + the matching member profile. Backend-free: both come from
+ * this browser's storage (lib/localBackend.ts), so the shape pages consume is
+ * the same as when this was backed by a live service.
+ */
 export function useAuth(): UseAuthResult {
-  const [user, setUser] = useState<User | null>(null)
-  const [authResolved, setAuthResolved] = useState(false)
-  const [profile, setProfile] = useState<MemberProfile | null>(null)
+  // false on the server and during hydration, true once mounted on the client,
+  // so pages never redirect on a session they haven't read yet.
+  const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false)
+  const raw = useSyncExternalStore(subscribe, snapshotRaw, () => '')
 
-  useEffect(() => {
-    return onAuthStateChanged(getFirebaseAuth(), (firebaseUser) => {
-      setUser(firebaseUser)
-      setAuthResolved(true)
-      if (!firebaseUser) setProfile(null)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!user) return
-    return onSnapshot(doc(getFirebaseDb(), 'users', user.uid), (snap) => {
-      const data = snap.data()
-      setProfile(
-        data
-          ? {
-              uid: data.uid,
-              name: data.name,
-              email: data.email,
-              country: data.country,
-              organisation: data.organisation ?? '',
-              tier: data.tier,
-              status: data.status,
-              memberId: data.memberId,
-              joinedAt:
-                data.createdAt instanceof Timestamp
-                  ? data.createdAt.toDate().toISOString()
-                  : new Date().toISOString(),
-              recommendedTrack: data.recommendedTrack
-                ? {
-                    acronym: data.recommendedTrack.acronym,
-                    name: data.recommendedTrack.name,
-                    strandId: data.recommendedTrack.strandId,
-                    strandName: data.recommendedTrack.strandName,
-                    scope: data.recommendedTrack.scope,
-                    horizon: data.recommendedTrack.horizon,
-                  }
-                : null,
-            }
-          : null
-      )
-    })
-  }, [user])
-
-  // Still loading if auth state hasn't resolved yet, or a session exists
-  // but its Firestore profile hasn't arrived (or belongs to a prior user).
-  const loading = !authResolved || (user !== null && profile?.uid !== user.uid)
-
-  return { user, profile, loading }
+  return useMemo(() => {
+    if (!mounted || !raw) return { user: null, profile: null, loading: true }
+    const { session, profile } = JSON.parse(raw) as {
+      session: SessionUser | null
+      profile: (Omit<MemberProfile, 'joinedAt'> & { createdAt: string }) | null
+    }
+    if (!session) return { user: null, profile: null, loading: false }
+    const { createdAt, ...rest } = profile ?? ({} as NonNullable<typeof profile>)
+    return {
+      user: getSession(),
+      profile: profile ? { ...rest, joinedAt: createdAt } : null,
+      loading: false,
+    }
+  }, [mounted, raw])
 }

@@ -189,7 +189,7 @@ export function clearPendingScopeAudit(): void {
   sessionStorage.removeItem(PENDING_KEY)
 }
 
-/** Payload written to Firestore under users/{uid}/scopeAudits/{id}. */
+/** Payload stored locally under the member's scopeAudits (see lib/localBackend.ts). */
 export type ScopeAuditRecord = {
   horizon: HorizonId
   scope: ScopeLevel

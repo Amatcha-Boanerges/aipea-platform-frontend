@@ -13,9 +13,9 @@ It has two halves:
 | Half | Pages | Backend |
 |---|---|---|
 | **Marketing site** (static content) | `/`, `/about`, `/membership`, `/certification`, `/events`, `/resources` | None. All copy lives in the repo. |
-| **Member portal** (dynamic) | `/sign-up`, `/sign-in`, `/dashboard`, `/certification/track-finder` (save step), `/checkout` (dormant) | Firebase Auth and Firestore, called directly from the browser. |
+| **Member portal** (dynamic) | `/sign-up`, `/sign-in`, `/dashboard`, `/certification/track-finder` (save step), `/checkout` (dormant) | Browser-local storage via `lib/localBackend.ts` (backend disconnected). |
 
-This repo is **frontend only**. Firestore security rules and the Cloud Functions that send emails are referenced in comments but are not here (see 11).
+This repo is **frontend only** and is currently **disconnected from any backend**. Accounts, the session, profiles and saved track audits live in the browser's `localStorage` through `lib/localBackend.ts` (demo only: nothing is shared between devices, no emails are sent, Google sign-in is unavailable). The public API of `lib/auth.ts` and `hooks/useAuth.ts` is unchanged, so a real backend can be reconnected by re-implementing those two files. The sections below that describe Firebase/Firestore document the previous, now-removed integration.
 
 ---
 
@@ -28,7 +28,7 @@ This repo is **frontend only**. Firestore security rules and the Cloud Functions
 | Styling | **Inline `style={{}}` objects**, plus a global `globals.css` for media queries and keyframes, plus Tailwind 4 | Tailwind is installed, but the live pages barely use it (see 7). |
 | Animation | `framer-motion` 12 | Global `MotionConfig reducedMotion="user"`. |
 | Icons | `lucide-react` | |
-| Auth and data | `firebase` 12 (Auth and Firestore) | Client SDK only. |
+| Auth and data | _(none)_ | Firebase SDK removed; local storage stand-in in `lib/localBackend.ts`. |
 | Theming | `next-themes` | Wired up, but the site is light-only (see 12). |
 | Fonts | `next/font/google`, DM Sans loaded twice | Exposed as CSS variables `--font-syne` and `--font-inter`. Both are DM Sans despite the names. |
 | Validation | `zod` (devDependency) | **Not imported anywhere.** |
@@ -45,7 +45,6 @@ This repo is **frontend only**. Firestore security rules and the Cloud Functions
 
 ```
 .
-├── .env.example                 6 NEXT_PUBLIC_FIREBASE_* keys
 ├── .github/workflows/deploy.yml Vercel prod deploy on push to main
 ├── AGENTS.md / CLAUDE.md        Agent instructions (CLAUDE.md just includes AGENTS.md)
 ├── public/
@@ -72,10 +71,10 @@ This repo is **frontend only**. Firestore security rules and the Cloud Functions
     │   ├── layout/Navbar.tsx    UNUSED (see 12.1)
     │   ├── sections/Hero.tsx    UNUSED (see 12.1)
     │   └── ui/Starfield.tsx     Only used by the unused Hero
-    ├── hooks/useAuth.ts         Firebase session and Firestore profile
+    ├── hooks/useAuth.ts         Local session and profile (useSyncExternalStore)
     └── lib/
-        ├── firebase.ts          Lazy Firebase init
-        ├── auth.ts              Auth and Firestore operations, tiers, helpers
+        ├── localBackend.ts      Browser-local accounts, session, profiles, audits
+        ├── auth.ts              Auth/profile operations (local), tiers, helpers
         ├── facts.ts             Single source of truth for site content
         └── trackFinder.ts       Track Finder logic and copy
 ```
@@ -266,7 +265,7 @@ There are no circular imports.
 
 ```powershell
 npm install           # node_modules was absent at time of writing
-copy .env.example .env.local   # then fill in the 6 Firebase values
+# no environment variables are required
 npm run dev           # next dev --webpack
 npm run build         # next build --webpack
 npm run lint          # eslint
