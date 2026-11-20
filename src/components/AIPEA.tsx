@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import {
   motion,
-  AnimatePresence,
   useInView,
   useReducedMotion,
   useMotionValue,
@@ -12,11 +11,10 @@ import {
   type Transition,
 } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowRight, Plus, Check, ChevronLeft, ChevronRight, Lock, Users, BookOpen, Calendar, GraduationCap, Mail, MapPin } from 'lucide-react'
+import { ArrowRight, Check, Users, BookOpen, Calendar, GraduationCap, Mail, MapPin } from 'lucide-react'
 import { SiteNav } from '@/components/site/SiteNav'
 import { SiteFooter } from '@/components/site/SiteFooter'
-import { PricingBreakdown, type PriceTier, type PriceRow } from '@/components/site/PageKit'
-import { CONFERENCE, CONTACT, MEMBERSHIP_BENEFITS, STRANDS, LEADERSHIP, DNA } from '@/lib/facts'
+import { CONFERENCE, CONTACT, DNA } from '@/lib/facts'
 
 // --- Tokens -------------------------------------------------------------------
 
@@ -105,31 +103,6 @@ function TiltCard({ children, max = 5, style }: { children: React.ReactNode; max
   )
 }
 
-function RotatingWord({ words, style }: { words: string[]; style?: React.CSSProperties }) {
-  const [i, setI] = useState(0)
-  const reduced = useReducedMotion()
-  useEffect(() => {
-    if (reduced) return
-    const id = setInterval(() => setI(v => (v + 1) % words.length), 2200)
-    return () => clearInterval(id)
-  }, [reduced, words.length])
-  return (
-    <span style={{ display: 'inline-grid', verticalAlign: 'top', justifyItems: 'start', ...style }}>
-      {/* Hidden copies hold the column at the widest word so the following text never shifts. */}
-      {words.map(w => (
-        <span key={w} aria-hidden style={{ gridArea: '1 / 1', visibility: 'hidden', whiteSpace: 'nowrap' }}>{w}</span>
-      ))}
-      <AnimatePresence mode="wait">
-        <motion.span key={words[i]}
-          initial={{ y: '0.7em', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '-0.7em', opacity: 0 }}
-          transition={{ duration: 0.5, ease: EASE }}
-          style={{ gridArea: '1 / 1', whiteSpace: 'nowrap' }}>
-          {words[i]}
-        </motion.span>
-      </AnimatePresence>
-    </span>
-  )
-}
 
 type Dir = 'up' | 'left' | 'right' | 'scale'
 function Reveal({ children, delay = 0, from = 'up', style, className }: {
@@ -313,7 +286,7 @@ function Hero() {
                   onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
                   Join AIPEA <ArrowRight size={15} />
                 </Link>
-                <Link href="#membership" style={{ fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.white, border: '1px solid rgba(255,255,255,0.34)', padding: '12px 24px', borderRadius: 100, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)' }}>
+                <Link href="/membership" style={{ fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.white, border: '1px solid rgba(255,255,255,0.34)', padding: '12px 24px', borderRadius: 100, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)' }}>
                   Explore membership
                 </Link>
               </motion.div>
@@ -349,7 +322,7 @@ function Hero() {
 // --- Pillar strip (ASAP homepage: Membership · Resources · Cert · Events) -----
 
 const pillars = [
-  { icon: Users,         label: 'Membership',    title: 'Connect, learn and grow.',      desc: 'Join a Pan-African community of executive professionals.', href: '#membership' },
+  { icon: Users,         label: 'Membership',    title: 'Connect, learn and grow.',      desc: 'Join a Pan-African community of executive professionals.', href: '/membership' },
   { icon: GraduationCap, label: 'Certification', title: 'Certified on scope, not only years.', desc: 'Six designations across three professional strands.', href: '/certification' },
   { icon: BookOpen,      label: 'Resources',     title: 'Built for the workplace.',        desc: 'Every module ends in something your employer can use.', href: '/resources' },
   { icon: Calendar,      label: 'Events',        title: 'Peer-to-peer, face-to-face.',    desc: `${CONFERENCE.name} — ${CONFERENCE.dateLabel}, Accra.`, href: '#events' },
@@ -465,44 +438,6 @@ function EventHighlight() {
               </div>
             </div>
           </ScrollReveal>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// --- Pathway strip (ASAP “What are you waiting for?”) -------------------------
-
-const pathwaySteps = [
-  { n: '1', title: 'Join AIPEA',        desc: 'Associate membership is free.', href: '/sign-up' },
-  { n: '2', title: 'Get certified',     desc: 'Earn the designation for your scope.', href: '/certification' },
-  { n: '3', title: 'Attend conference', desc: 'Meet peers across the continent.', href: '#events' },
-]
-
-function PathwayStrip() {
-  return (
-    <section style={{ padding: `${S.xl}px 40px`, background: C.surface, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-      <div style={INNER}>
-        <ScrollReveal>
-          <p style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(22px,3vw,32px)', color: C.text, letterSpacing: '-0.02em', marginBottom: S.md, textAlign: 'center' }}>
-            What are you waiting for?
-          </p>
-        </ScrollReveal>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }} className="aipea-pathway-grid">
-          {pathwaySteps.map((step, i) => (
-            <ScrollReveal key={step.n} delay={0.08 * i}>
-              <Link href={step.href}
-                style={{ display: 'flex', alignItems: 'flex-start', gap: 18, padding: '28px 26px', borderRadius: 16, background: C.bg, border: `1px solid ${C.border}`, textDecoration: 'none', transition: 'border-color 0.2s, box-shadow 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(232,80,26,0.35)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(27,42,94,0.06)' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.boxShadow = 'none' }}>
-                <span style={{ fontFamily: dis, fontWeight: 800, fontSize: 32, lineHeight: 1, color: C.orange, letterSpacing: '-0.04em', flexShrink: 0 }}>{step.n}</span>
-                <div>
-                  <div style={{ fontFamily: dis, fontWeight: 800, fontSize: 18, color: C.text, letterSpacing: '-0.01em' }}>{step.title}</div>
-                  <div style={{ fontFamily: bod, fontSize: 13, color: C.muted, marginTop: 6, lineHeight: 1.55 }}>{step.desc}</div>
-                </div>
-              </Link>
-            </ScrollReveal>
-          ))}
         </div>
       </div>
     </section>
@@ -642,235 +577,6 @@ function CoreValues() {
   )
 }
 
-// --- Pricing breakdown (detailed tier comparison) -----------------------------
-
-// Published membership pricing. Paid tiers still route through the Secretariat
-// until checkout has real payment verification.
-const priceTiers: PriceTier[] = [
-  { name: 'Associate',    blurb: 'Entry membership',        price: 'Free',       cadence: '', href: '/sign-up', featured: true, badge: 'Free to join' },
-  { name: 'Professional', blurb: 'Established professionals', price: 'Ghc 1,200', cadence: '', href: '#contact', cta: 'Contact us' },
-  { name: 'Fellow',       blurb: 'Senior practitioners',    price: 'Ghc 2,000', cadence: '', href: '#contact', cta: 'Contact us' },
-]
-
-const priceRows: PriceRow[] = MEMBERSHIP_BENEFITS.map(r => ({ ...r, values: [...r.values] }))
-
-function PricingSection() {
-  return (
-    <section id="membership" style={{ ...SECTION, background: C.surface }}>
-      <div style={INNER}>
-        <SectionHeader align="center" statement="Choose the membership that suits your ambition." aside="Membership is your standing in the institute. Certification is earned separately." />
-        <PricingBreakdown tiers={priceTiers} rows={priceRows} note="Membership renews annually from your intake date. Professional and Fellow applications are completed through the Secretariat." />
-      </div>
-    </section>
-  )
-}
-
-// --- Courses ------------------------------------------------------------------
-
-// These were three invented course titles with invented 2026 quarters. AIPEA's
-// actual offer is the three certification strands.
-const courses = STRANDS.map(s => ({ title: s.name, desc: s.focus, type: `${s.tracks[0].acronym} · ${s.tracks[1].acronym}`, when: s.duration }))
-
-function Courses() {
-  return (
-    <section id="courses" style={{ ...SECTION, background: C.bg }}>
-      <div style={INNER}>
-        <SectionHeader align="center" nowrap statement="Three strands. Six designations." aside="Certified on scope, not on years served." />
-        <div style={{ display: 'grid', gridTemplateColumns: '0.95fr 1.2fr', gap: 22, alignItems: 'stretch' }} className="aipea-course-showcase">
-          <Reveal from="left">
-            <div className="aipea-course-hero" style={{ minHeight: 520, borderRadius: 24, padding: 38, background: `linear-gradient(145deg, ${C.navyDark} 0%, ${C.navy} 100%)`, color: C.white, position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ position: 'absolute', inset: 0, opacity: 0.12 }}>
-                <Image
-                  src="/images/conference/optimized/resources-workshop.webp"
-                  alt="A skills session in progress at an AIPEA workshop"
-                  fill
-                  sizes="600px"
-                  style={{ objectFit: 'cover', objectPosition: 'center top' }}
-                />
-              </div>
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 76% 20%, rgba(232,80,26,0.28), transparent 34%)' }} />
-              <div className="aipea-spin-rev" style={{ position: 'absolute', bottom: -80, right: -80, width: 260, height: 260, borderRadius: '50%', border: '1px dashed rgba(232,80,26,0.32)', pointerEvents: 'none' }} />
-              <div style={{ position: 'relative', zIndex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <p style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, color: C.orange, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 24 }}>Course library</p>
-                  <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(32px,4vw,60px)', lineHeight: 0.95, letterSpacing: '-0.05em' }}>
-                    A curriculum built for Africa&apos;s executive assistants.
-                  </h3>
-                  <p style={{ fontFamily: bod, fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.6)', marginTop: 18, maxWidth: 420 }}>
-                    Every module ends in something your employer can use — not just a certificate of attendance.
-                  </p>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 40 }}>
-                  {['Live Crucibles', 'Corporate Playbooks', 'Practice-focused Frameworks', 'Oral Defense'].map((item, ci) => (
-                    <motion.div key={item}
-                      initial={{ opacity: 0, scale: 0.92 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true, margin: '-40px' }}
-                      transition={{ duration: 0.5, delay: ci * 0.1, ease: EASE }}
-                      style={{ position: 'relative', zIndex: 1, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: 16, background: 'rgba(255,255,255,0.04)' }}>
-                      <Lock size={13} color={C.orange} />
-                      <p style={{ marginTop: 16, fontFamily: dis, fontWeight: 700, fontSize: 14 }}>{item}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Reveal>
-          <div style={{ display: 'grid', gap: 14 }}>
-            {courses.map((c, i) => (
-              <Reveal key={c.title} from="right" delay={0.08 * i}>
-                <div className="aipea-course-item" style={{ display: 'grid', gridTemplateColumns: '80px 1fr auto', gap: 22, alignItems: 'center', padding: '26px 30px', background: C.bg, border: `1px solid ${C.border}`, borderRadius: 20, minHeight: 160, transition: 'transform 0.22s, border-color 0.22s, box-shadow 0.22s' }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = C.borderHover; e.currentTarget.style.boxShadow = '0 12px 40px rgba(27,42,94,0.08)' }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = C.border; e.currentTarget.style.boxShadow = 'none' }}>
-                  <div style={{ fontFamily: dis, fontSize: 42, fontWeight: 800, color: i === 1 ? C.orange : C.elevated, letterSpacing: '-0.08em' }}>0{i + 1}</div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-                      <span style={{ display: 'inline-flex', background: 'rgba(232,80,26,0.08)', color: C.orange, fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '4px 10px', borderRadius: 100, fontFamily: dis }}>{c.type}</span>
-                      <span style={{ fontFamily: bod, fontSize: 12, color: C.faint }}>{c.when}</span>
-                    </div>
-                    <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 22, color: C.text, lineHeight: 1.1, letterSpacing: '-0.02em' }}>{c.title}</h3>
-                    <p style={{ fontFamily: bod, marginTop: 8, fontSize: 13, color: C.muted, lineHeight: 1.7 }}>{c.desc}</p>
-                  </div>
-                  <div className="aipea-course-lock" style={{ width: 44, height: 44, borderRadius: '50%', background: C.surface, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                    <Lock size={14} color={C.orange} />
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// --- Process ------------------------------------------------------------------
-
-// Certificates are NOT issued on joining — the client was explicit that they come
-// only on completing a certification. This flow describes membership only.
-const steps = [
-  { short: 'Account',   name: 'Create your account',   desc: 'Email or Google. Associate membership is free.', stat: 'Free to join.' },
-  { short: 'Profile',   name: 'Complete your profile', desc: 'Tell us the scope you carry in your role.', stat: 'Under 5 minutes.' },
-  { short: 'Member ID', name: 'Get your member ID',    desc: 'Issued on sign-up, and listed in the member directory.', stat: 'Issued instantly.' },
-  { short: 'Track',     name: 'Choose a track',        desc: 'Apply for the certification that matches your scope.', stat: 'Six designations.' },
-]
-
-function Process() {
-  const [open, setOpen] = useState(0)
-  const [paused, setPaused] = useState(false)
-  const reduced = useReducedMotion()
-  useEffect(() => {
-    if (paused || reduced) return
-    const id = setInterval(() => setOpen(o => (o + 1) % steps.length), 3800)
-    return () => clearInterval(id)
-  }, [paused, reduced])
-  const last = steps.length - 1
-  const active = steps[open]
-  return (
-    <section id="process" style={{ ...SECTION, background: C.surface }}>
-      <div style={INNER}>
-        <SectionHeader align="center" statement="From sign-up to member ID in one sitting." aside="Free to join. Certification comes next." />
-
-        {/* One continuous activation rail: four nodes on a single line that fills
-            as it advances — the sequence read as one unbroken sitting, not two
-            stacked lists. Auto-advances; pauses on hover; nodes are clickable. */}
-        <Reveal>
-          <div
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-            style={{ maxWidth: 980, margin: '0 auto' }}
-          >
-            <div className="aipea-rail" style={{ position: 'relative', display: 'grid', gridTemplateColumns: `repeat(${steps.length}, 1fr)`, padding: '8px 0 4px' }}>
-              {/* Track (base line) — sits behind the node row, inset half a column
-                  on each end so it spans node-centre to node-centre. */}
-              <div className="aipea-rail-track" style={{ position: 'absolute', top: 30, left: `${100 / (steps.length * 2)}%`, right: `${100 / (steps.length * 2)}%`, height: 2, background: C.border, borderRadius: 2 }}>
-                <motion.div
-                  animate={{ width: `${(open / last) * 100}%` }}
-                  transition={{ duration: reduced ? 0 : 0.5, ease: EASE }}
-                  style={{ height: '100%', background: C.orange, borderRadius: 2 }}
-                />
-              </div>
-
-              {steps.map((st, i) => {
-                const done = i < open
-                const isActive = i === open
-                return (
-                  <button
-                    key={st.short}
-                    onClick={() => setOpen(i)}
-                    aria-label={`Step ${i + 1}: ${st.name}`}
-                    className="aipea-rail-node"
-                    style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
-                  >
-                    <span
-                      style={{
-                        width: 44, height: 44, borderRadius: '50%',
-                        display: 'grid', placeItems: 'center',
-                        fontFamily: dis, fontWeight: 800, fontSize: 14,
-                        background: isActive ? C.orange : done ? '#fceae4' : C.bg,
-                        color: isActive ? C.white : done ? C.orange : C.faint,
-                        border: `2px solid ${isActive || done ? C.orange : C.border}`,
-                        boxShadow: isActive ? '0 8px 24px rgba(232,80,26,0.28)' : 'none',
-                        transition: 'background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s',
-                      }}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span style={{ fontFamily: dis, fontWeight: 700, fontSize: 12, letterSpacing: '0.04em', color: isActive ? C.text : C.muted, textAlign: 'center', transition: 'color 0.25s' }}>
-                      {st.short}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Single detail panel for the active step. */}
-            <div style={{ marginTop: 28, borderRadius: 20, background: C.bg, border: `1px solid ${C.border}`, boxShadow: '0 10px 40px rgba(27,42,94,0.06)', overflow: 'hidden' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={open}
-                  initial={{ opacity: 0, y: reduced ? 0 : 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: reduced ? 0 : -10 }}
-                  transition={{ duration: 0.3, ease: EASE }}
-                  className="aipea-rail-detail"
-                  style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'clamp(20px,3vw,40px)', alignItems: 'center', padding: 'clamp(28px,3.5vw,44px)' }}
-                >
-                  <span style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(56px,7vw,104px)', lineHeight: 0.8, letterSpacing: '-0.06em', color: 'rgba(232,80,26,0.16)' }}>
-                    {String(open + 1).padStart(2, '0')}
-                  </span>
-                  <div>
-                    <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(24px,2.6vw,36px)', lineHeight: 1.05, letterSpacing: '-0.03em', color: C.text }}>
-                      {active.name}
-                    </h3>
-                    <p style={{ fontFamily: bod, fontSize: 15, color: C.muted, lineHeight: 1.7, maxWidth: 520, marginTop: 12 }}>
-                      {active.desc}
-                    </p>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 18, padding: '7px 14px', borderRadius: 999, background: 'rgba(232,80,26,0.08)' }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.orange }} />
-                      <span style={{ fontFamily: dis, fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.orange }}>{active.stat}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-              {/* Auto-advance timer bar spanning the panel foot. */}
-              <div style={{ height: 3, background: C.border, overflow: 'hidden' }}>
-                <motion.div
-                  key={`${open}-${paused}-${reduced}`}
-                  initial={{ width: '0%' }}
-                  animate={{ width: paused || reduced ? '100%' : ['0%', '100%'] }}
-                  transition={{ duration: paused || reduced ? 0 : 3.8, ease: 'linear' }}
-                  style={{ height: '100%', background: C.orange }}
-                />
-              </div>
-            </div>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
-
 // --- Contact ------------------------------------------------------------------
 
 function Contact() {
@@ -988,141 +694,6 @@ function CTABanner() {
   )
 }
 
-// --- Leadership Section -------------------------------------------------------
-
-// Names and titles per the client's approved list. Bios are not yet approved, so
-// the rotator carries a statement about the Secretariat rather than putting words
-// in a named person's mouth.
-const SECRETARIAT_STATEMENT =
-  'The AIPEA Secretariat serves as your career advocate, your learning mentor and your community guide — backed by a Governing Council of corporate directors, academics, executive coaches and Chief of Staff veterans.'
-
-const leaders = LEADERSHIP.map(l => ({
-  name: l.name,
-  title: l.title,
-  image: l.image ?? '/images/conference/optimized/leader-ama.webp',
-  bio: SECRETARIAT_STATEMENT,
-}))
-
-function LeadershipSection() {
-  const [i, setI] = useState(0)
-  const [paused, setPaused] = useState(false)
-  const reduced = useReducedMotion()
-  const leader = leaders[i]
-
-  // Long enough to read a four-line bio without feeling hurried; pauses on hover or
-  // focus, and stops for good once someone picks a leader themselves.
-  const [userPicked, setUserPicked] = useState(false)
-  useEffect(() => {
-    if (paused || reduced || userPicked) return
-    const id = setInterval(() => setI(v => (v + 1) % leaders.length), 11000)
-    return () => clearInterval(id)
-  }, [paused, reduced, userPicked])
-
-  const go = (next: number) => { setUserPicked(true); setI((next + leaders.length) % leaders.length) }
-
-  return (
-    <section style={{ ...SECTION, background: C.navyDark }}>
-      <div style={INNER}>
-        <ScrollReveal>
-          <div style={{ maxWidth: 640, marginBottom: S.headerGap }}>
-            <p style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.orange, marginBottom: S.xs }}>Leadership</p>
-            <h2 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(30px,3.5vw,48px)', color: C.white, lineHeight: 1.1, letterSpacing: '-0.03em' }}>The Secretariat, headquartered in Accra.</h2>
-          </div>
-        </ScrollReveal>
-
-        <ScrollReveal delay={0.08}>
-          <div
-            className="aipea-leader-rotator"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-            onFocusCapture={() => setPaused(true)}
-            onBlurCapture={() => setPaused(false)}
-            style={{ display: 'grid', gridTemplateColumns: '0.72fr 1fr', gap: S.lg, alignItems: 'stretch' }}
-          >
-            {/* Portrait */}
-            <div style={{ position: 'relative', minHeight: 460, borderRadius: 20, overflow: 'hidden', background: 'rgba(255,255,255,0.04)' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={leader.name}
-                  initial={{ opacity: 0, scale: 1.04 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: reduced ? 0 : 0.6, ease: EASE }}
-                  style={{ position: 'absolute', inset: 0 }}
-                >
-                  <Image
-                    src={leader.image}
-                    alt={leader.name}
-                    fill
-                    sizes="(max-width: 900px) 100vw, 420px"
-                    style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
-                  />
-                </motion.div>
-              </AnimatePresence>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(8,14,38,0.5) 0%, transparent 45%)', pointerEvents: 'none' }} />
-            </div>
-
-            {/* Bio. Top-aligned rather than space-between: the bios are short, and
-                pushing the controls to the portrait's full height opened a dead gap. */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={leader.name}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: reduced ? 0 : -10 }}
-                  transition={{ duration: reduced ? 0 : 0.5, ease: EASE }}
-                >
-                  <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(26px,2.6vw,36px)', color: C.white, lineHeight: 1.1, letterSpacing: '-0.02em' }}>{leader.name}</h3>
-                  <p style={{ fontFamily: bod, fontSize: 13, color: C.orange, fontWeight: 600, marginTop: 8 }}>{leader.title}</p>
-                  <p style={{ fontFamily: bod, fontSize: 15.5, lineHeight: 1.8, color: 'rgba(255,255,255,0.62)', marginTop: S.md, maxWidth: 620 }}>{leader.bio}</p>
-                </motion.div>
-              </AnimatePresence>
-
-              {leaders.length > 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: S.md, marginTop: S.lg, paddingTop: S.md, borderTop: '1px solid rgba(255,255,255,0.1)', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', gap: S.md, flexWrap: 'wrap' }}>
-                    {leaders.map((l, idx) => (
-                      <button
-                        key={l.name}
-                        onClick={() => go(idx)}
-                        aria-current={idx === i}
-                        style={{
-                          background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0',
-                          fontFamily: dis, fontWeight: 700, fontSize: 12, letterSpacing: '0.04em',
-                          color: idx === i ? C.white : 'rgba(255,255,255,0.38)',
-                          borderBottom: `2px solid ${idx === i ? C.orange : 'transparent'}`,
-                          transition: 'color 0.2s, border-color 0.2s',
-                        }}
-                      >
-                        {l.name}
-                      </button>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {([['Previous leader', -1, ChevronLeft], ['Next leader', 1, ChevronRight]] as const).map(([label, dir, Icon]) => (
-                      <button
-                        key={label}
-                        onClick={() => go(i + dir)}
-                        aria-label={label}
-                        style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.18)', background: 'none', color: C.white, cursor: 'pointer', display: 'grid', placeItems: 'center', transition: 'background 0.2s, border-color 0.2s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = C.orange; e.currentTarget.style.borderColor = C.orange }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)' }}
-                      >
-                        <Icon size={16} />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </ScrollReveal>
-      </div>
-    </section>
-  )
-}
-
 // --- Root ---------------------------------------------------------------------
 
 export function AIPEA() {
@@ -1133,12 +704,7 @@ export function AIPEA() {
       <PillarStrip />
       <About />
       <CoreValues />
-      <PricingSection />
       <EventHighlight />
-      <Courses />
-      <Process />
-      <LeadershipSection />
-      <PathwayStrip />
       <Contact />
       <CTABanner />
       <SiteFooter />
