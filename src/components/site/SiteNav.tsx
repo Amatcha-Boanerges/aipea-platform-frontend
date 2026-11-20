@@ -92,7 +92,7 @@ export function SiteNav({ overDark = false }: { overDark?: boolean }) {
           <div className="aipea-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {NAV.map(item => (
               <Link key={item.label} href={item.href}
-                style={{ display: 'inline-flex', alignItems: 'center', padding: '9px 14px', borderRadius: 999, fontFamily: dis, fontWeight: 700, fontSize: 13.5, color: inkStrong, transition: 'color 0.2s' }}
+                style={{ display: 'inline-flex', alignItems: 'center', padding: '9px 16px', borderRadius: 999, fontFamily: dis, fontWeight: 700, fontSize: 15.5, whiteSpace: 'nowrap', color: inkStrong, transition: 'color 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = C.orange)}
                 onMouseLeave={e => (e.currentTarget.style.color = inkStrong)}>
                 {item.label}
@@ -102,9 +102,9 @@ export function SiteNav({ overDark = false }: { overDark?: boolean }) {
 
           {/* Desktop actions */}
           <div className="aipea-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-            <Link href="/sign-in" style={{ fontFamily: bod, fontSize: 13, color: inkStrong, opacity: onDark ? 0.9 : 0.72, transition: 'color 0.35s' }}>Sign in</Link>
+            <Link href="/sign-in" style={{ fontFamily: bod, fontSize: 13, whiteSpace: 'nowrap', color: inkStrong, opacity: onDark ? 0.9 : 0.72, transition: 'color 0.35s' }}>Sign in</Link>
             <Link href="/sign-up"
-              style={{ fontFamily: dis, fontWeight: 700, fontSize: 13, color: C.white, background: C.orange, padding: '9px 20px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'background 0.2s' }}
+              style={{ fontFamily: dis, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', color: C.white, background: C.orange, padding: '9px 20px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'background 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.background = C.orangeDim)}
               onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
               Join AIPEA <ArrowRight size={14} />
