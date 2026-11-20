@@ -25,8 +25,6 @@ const footerCols: { h: string; links: { label: string; href: string }[] }[] = [
   { h: 'Membership', links: [
     { label: 'Why join AIPEA', href: '/membership#why' },
     { label: 'Membership tiers', href: '/membership#tiers' },
-    { label: 'Member benefits', href: '/membership#benefits' },
-    { label: 'Member directory', href: '/membership#directory' },
   ] },
   { h: 'Explore', links: [
     { label: 'Certification', href: '/certification' },

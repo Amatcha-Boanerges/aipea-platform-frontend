@@ -3,11 +3,11 @@
 import { Award, Users, TrendingUp, Megaphone } from 'lucide-react'
 import { C, dis, bod, INNER, SECTION } from '@/components/site/tokens'
 import {
-  PageShell, PageHero, SectionHeading, SplitFeature,
-  StatBand, CTASection, PricingBreakdown, type PriceTier, type PriceRow,
+  PageShell, PageHero, SectionHeading,
+  CTASection, PricingBreakdown, type PriceTier, type PriceRow,
 } from '@/components/site/PageKit'
 import { Reveal } from '@/components/site/Reveal'
-import { MEMBERSHIP, MEMBERSHIP_BENEFITS, FIGURES, WHY_WE_EXIST } from '@/lib/facts'
+import { MEMBERSHIP_BENEFITS } from '@/lib/facts'
 
 // [WHY] Four pillars from Why Join AIPEA. Post-nominals and salary-bracket claims
 // stay out — the client has not cleared them. Continental Registry is framed as
@@ -87,16 +87,6 @@ export default function MembershipPage() {
         secondary={{ label: 'Compare tiers', href: '#tiers' }}
       />
 
-      <section id="exist" style={{ ...SECTION, background: C.surface }}>
-        <div style={INNER}>
-          <SectionHeading
-            eyebrow="Why we exist"
-            title="Eliminate the gap between executive vision and daily execution."
-            aside={WHY_WE_EXIST}
-          />
-        </div>
-      </section>
-
       <section id="why" style={{ ...SECTION, background: C.bg }}>
         <div style={INNER}>
           <SectionHeading
@@ -138,53 +128,10 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      <StatBand stats={[
-        { value: 'Three tiers', label: 'Associate, Professional and Fellow.' },
-        { value: 'Associate is free', label: 'No cost and no hidden charges. Step up when you are ready.' },
-        { value: `${FIGURES.members}+ members`, label: 'The founding cohort, currently based in Ghana.' },
-        { value: MEMBERSHIP.renewal, label: 'Membership runs a year from the date you join.' },
-      ]} />
-
       <section id="tiers" style={{ ...SECTION, background: C.surface }}>
         <div style={INNER}>
           <SectionHeading eyebrow="Membership tiers" title="Choose the membership that fits your stage." aside="Membership is not the same as a professional credential. Your tier sets your standing in the institute; your designation is earned through certification." />
           <PricingBreakdown tiers={tiers} rows={rows} note={`Membership renews annually from your intake date. Professional and Fellow applications are completed through the Secretariat.`} />
-        </div>
-      </section>
-
-      <section id="benefits" style={{ ...SECTION, background: C.bg }}>
-        <div style={INNER}>
-          <SplitFeature
-            image="/images/conference/optimized/membership-community.webp"
-            eyebrow="Member benefits"
-            title="Everything you need, in one seat."
-            body="Membership gives you standing in the institute, a place in the member directory and access to the community. Certification is separate, and earned."
-            points={[
-              'A unique AIPEA member ID, issued on joining',
-              'A directory listing that employers can search',
-              'Speaking opportunities at AIPEA events, from Professional membership upwards',
-              'Conference discounts from Professional membership upwards',
-              'Certificates are issued on completing a certification, not on joining',
-            ]}
-            cta={{ label: 'Apply for membership', href: '/sign-up' }}
-          />
-        </div>
-      </section>
-
-      <section id="directory" style={{ ...SECTION, background: C.surface }}>
-        <div style={INNER}>
-          <SplitFeature
-            reverse
-            image="/images/conference/optimized/membership-benefits.webp"
-            eyebrow="Member directory"
-            title="A Pan-African network, one search away."
-            body="Every AIPEA member joins the register: a place to find peers and opportunities, and to be found by the organisations looking for you. The long-term goal is the AIPEA Continental Registry, spanning Anglophone and Francophone Africa."
-            points={[
-              'Every member listed with a verified member ID',
-              'Searchable by employers',
-              `Currently ${FIGURES.members} members, based in Ghana`,
-            ]}
-          />
         </div>
       </section>
 
