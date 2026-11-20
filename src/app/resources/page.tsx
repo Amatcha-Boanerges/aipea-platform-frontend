@@ -45,7 +45,7 @@ export default function ResourcesPage() {
     <PageShell>
       <PageHero
         eyebrow="Resources"
-        title="Built to be deployed,"
+        title="Built for the workplace,"
         highlight="not just studied."
         subtitle="AIPEA's learning model is not built on passive listening. Every module ends in a concrete deliverable that adds value to your current employer."
         image="/images/conference/optimized/resources-hero.webp"
@@ -76,9 +76,9 @@ export default function ResourcesPage() {
           <SplitFeature
             reverse
             image="/images/conference/optimized/gallery-01.webp"
-            eyebrow="Workplace-deployable artifacts"
+            eyebrow="Work your employer can use"
             title="Every quarter produces something real."
-            body="On the long-term tracks you build and deploy institutional artifacts every trimester, so your employer sees a return before you qualify."
+            body="On the 12-month Chief of Staff track you complete a piece of work every trimester (three months), so your employer sees a return before you qualify."
             points={TRIMESTER_DELIVERABLES.map(t => `${t.n}: ${t.deliverable}`)}
             cta={{ label: 'Explore certification', href: '/certification' }}
           />

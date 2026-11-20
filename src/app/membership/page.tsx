@@ -17,7 +17,7 @@ const why = [
     icon: Award,
     label: 'Recognition',
     title: 'Earn the credence you have already worked for',
-    desc: 'You protect bottom lines, synchronise C-Suite priorities and drive operational momentum. AIPEA gives that experience formal corporate backing.',
+    desc: 'You protect bottom lines, keep C-Suite priorities aligned and drive operational momentum. AIPEA gives that experience formal corporate backing.',
     points: [
       'Accountability-based designations that signal your exact level of impact',
       'A verified place on the AIPEA Continental Registry',
@@ -28,7 +28,7 @@ const why = [
     icon: Users,
     label: 'Community',
     title: 'Your continental network of peers',
-    desc: 'A trusted ecosystem across Africa and the diaspora — built for people who do this work every day, not for corporate fluff.',
+    desc: 'A trusted community across Africa and the diaspora — built for people who do this work every day, not for corporate fluff.',
     points: [
       'The Pan-African Bridge across West, East, Central, South and North Africa — Anglophone and Francophone',
       'Physical and virtual meetups grounded in authenticity and peer exchange',
@@ -39,10 +39,10 @@ const why = [
     icon: TrendingUp,
     label: 'Development',
     title: 'Continuous growth for the modern economy',
-    desc: 'AIPEA is a growth engine of workplace-ready skills you can deploy the next morning — not passive listening.',
+    desc: 'AIPEA is a growth engine of workplace-ready skills you can use the next morning — not passive listening.',
     points: [
       'Structured 6, 9 and 12-month tracks for Personal Assistants, Executive Assistants and Chiefs of Staff',
-      'AI and tech synchronisation for the modern executive office',
+      'AI and tech skills for the modern executive office',
       'Every module ends in a workplace-deployable skill you can use for the benefit of your employer',
     ],
   },
@@ -53,7 +53,7 @@ const why = [
     desc: 'AIPEA elevates how organisations view, compensate and empower executive support professionals across the continent.',
     points: [
       'Direct engagement with corporate leaders, HR heads and boards to redefine industry standards',
-      'Membership that signals integrity, confidentiality and institutional trust',
+      'Membership that signals integrity, confidentiality and trust',
       'Transparent career pathways from junior associate through to Chief of Staff',
     ],
   },

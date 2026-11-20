@@ -351,7 +351,7 @@ function Hero() {
 const pillars = [
   { icon: Users,         label: 'Membership',    title: 'Connect, learn and grow.',      desc: 'Join a Pan-African community of executive professionals.', href: '#membership' },
   { icon: GraduationCap, label: 'Certification', title: 'Certified on scope, not only years.', desc: 'Six designations across three professional strands.', href: '/certification' },
-  { icon: BookOpen,      label: 'Resources',     title: 'Built to be deployed.',          desc: 'Every module ends in an artifact your employer can use.', href: '/resources' },
+  { icon: BookOpen,      label: 'Resources',     title: 'Built for the workplace.',        desc: 'Every module ends in something your employer can use.', href: '/resources' },
   { icon: Calendar,      label: 'Events',        title: 'Peer-to-peer, face-to-face.',    desc: `${CONFERENCE.name} — ${CONFERENCE.dateLabel}, Accra.`, href: '#events' },
 ]
 
@@ -697,11 +697,11 @@ function Courses() {
                     A curriculum built for Africa&apos;s executive assistants.
                   </h3>
                   <p style={{ fontFamily: bod, fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.6)', marginTop: 18, maxWidth: 420 }}>
-                    Every module ends in a deliverable your employer can deploy — not a certificate of attendance.
+                    Every module ends in something your employer can use — not just a certificate of attendance.
                   </p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 40 }}>
-                  {['Live Crucibles', 'Corporate Playbooks', 'Board Frameworks', 'Oral Defense'].map((item, ci) => (
+                  {['Live Crucibles', 'Corporate Playbooks', 'Practice-focused Frameworks', 'Oral Defense'].map((item, ci) => (
                     <motion.div key={item}
                       initial={{ opacity: 0, scale: 0.92 }}
                       whileInView={{ opacity: 1, scale: 1 }}

@@ -234,7 +234,7 @@ export const STRANDS: Strand[] = [
   },
 ]
 
-/** [DES] The trimester deliverable system, for long-term tracks. */
+/** [DES] The trimester deliverables. A trimester is three months; only the 12-month Chief of Staff strand runs four of them. */
 export const TRIMESTER_DELIVERABLES = [
   { n: 'Trimester 1', deliverable: 'Integration Blueprint & Tech Audit' },
   { n: 'Trimester 2', deliverable: 'Corporate Governance & Board Framework' },
@@ -246,7 +246,7 @@ export const TRIMESTER_DELIVERABLES = [
 export const ASSESSMENT_STAGES = [
   { n: '01', name: 'Application', desc: 'Apply to the track that matches your operational scope.' },
   { n: '02', name: 'Attendance', desc: 'Attend the structured sessions across your track.' },
-  { n: '03', name: 'Coursework', desc: 'Build the institutional artifacts your track requires.' },
+  { n: '03', name: 'Coursework', desc: 'Complete the practical work your track requires.' },
   { n: '04', name: 'Exam', desc: 'Sit the written assessment for your designation.' },
   { n: '05', name: 'Assessment', desc: 'Defend your capstone before assessors.' },
   { n: '06', name: 'Certified', desc: 'Receive your designation and registry entry.' },

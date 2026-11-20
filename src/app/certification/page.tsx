@@ -66,7 +66,7 @@ export default function CertificationPage() {
             image="/images/conference/optimized/certification-credential.webp"
             eyebrow="The AIPEA credential"
             title="Accountability-based, not attendance-based."
-            body="We are shifting the industry standard from passive conference attendance to accountability-based certification. When an HR Director sees an AIPEA credential, they know that individual has built, defended and deployed real-world corporate artifacts."
+            body="We are shifting the industry standard from passive conference attendance to accountability-based certification. When an HR Director sees an AIPEA credential, they know that person has done real work, defended it, and put it to use for their employer."
             points={[
               'Three professional strands, six designations',
               'Every track ends in a defended capstone',
@@ -214,9 +214,9 @@ export default function CertificationPage() {
       <section id="artifacts" style={{ ...SECTION, background: C.surface }}>
         <div style={INNER}>
           <SectionHeading
-            eyebrow="The trimester deliverable system"
-            title="You build institutional artifacts, not lecture notes."
-            aside="On the long-term tracks, every quarter produces something your employer can deploy — so the return on their investment starts before you qualify."
+            eyebrow="Chief of Staff track: four trimesters"
+            title="Real work for your employer, every trimester."
+            aside="A trimester is three months. The 12-month Chief of Staff strand runs for four, and each one ends in a piece of work your employer can use, so they see a return before you qualify. The Personal Assistant and Executive Assistant strands are shorter and finish with their own final project."
           />
           <div className="aipea-trimester-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
             {TRIMESTER_DELIVERABLES.map((t, i) => (
@@ -235,7 +235,7 @@ export default function CertificationPage() {
         { value: 'Three strands', label: 'Personal Assistant, Executive Assistant and Chief of Staff.' },
         { value: 'Six designations', label: 'Two accountability tracks within every strand.' },
         { value: '6, 9 or 12 months', label: 'Track length set by the scope of the strand.' },
-        { value: 'Defended capstones', label: 'Every designation ends in a live crucible or an oral defense.' },
+        { value: 'Defended capstones', label: 'Every designation ends in a live simulation or an oral defense.' },
       ]} />
 
       {/* Registry ----------------------------------------------------------- */}
