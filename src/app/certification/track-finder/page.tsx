@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowRight, Check, Download, Mail } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Download, Mail } from 'lucide-react'
 import {
   PageShell, PageHero, SectionHeading, CTASection,
 } from '@/components/site/PageKit'
@@ -14,28 +14,49 @@ import { useAuth } from '@/hooks/useAuth'
 import { saveScopeAudit, getAuthErrorMessage } from '@/lib/auth'
 import { CONTACT, ORG } from '@/lib/facts'
 import {
-  HORIZON_OPTIONS, SCOPE_OPTIONS, resolveTrack,
+  AUDIT_QUESTIONS, resolveTrack, scoreAudit,
   savePendingScopeAudit, getPendingScopeAudit, clearPendingScopeAudit,
-  type HorizonId, type ScopeLevel, type TrackFinderResult,
+  EMPTY_AUDIT_PROFILE, INDUSTRIES, REPORTING_LEVELS, DELIVERY_FORMATS, SPONSORSHIPS, EMPLOYER_FUNDED,
+  type AuditProfile, type TrackFinderResult,
 } from '@/lib/trackFinder'
 
 const PROSPECTUS_HREF = '/docs/aipea-2026-prospectus.pdf'
 const JUSTIFICATION_MAIL = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Request: Letter to Your Boss Justification Pack')}&body=${encodeURIComponent('Hello Secretariat,\n\nI have completed my AIPEA Professional Scope Audit and would like the corporate justification pack to share with my HR Director / Executive.\n\nThank you.')}`
 
-type Step = 'horizon' | 'scope' | 'result'
+const TOTAL = AUDIT_QUESTIONS.length
+const LETTERS = ['A', 'B', 'C', 'D']
 
 export default function TrackFinderPage() {
   const router = useRouter()
   const { user, profile, loading: authLoading } = useAuth()
-  const [step, setStep] = useState<Step>('horizon')
-  const [horizon, setHorizon] = useState<HorizonId | null>(null)
-  const [scope, setScope] = useState<ScopeLevel | null>(null)
+  const [answers, setAnswers] = useState<number[]>([])
+  const [index, setIndex] = useState(0)
+  const [stage, setStage] = useState<'bio' | 'org' | 'questions'>('bio')
+  const [form, setForm] = useState<Partial<AuditProfile>>({})
+  const [formError, setFormError] = useState('')
   const [result, setResult] = useState<TrackFinderResult | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
   const [celebrateKey, setCelebrateKey] = useState(0)
   const resumedPending = useRef(false)
+  const auditRef = useRef<HTMLDivElement>(null)
+  const firstRender = useRef(true)
+
+  // Each step swaps in content of a different height. Without this, the page
+  // shrinks under the reader and the browser leaves them further down the page
+  // (on "How placement works"). Whenever the step changes, bring the top of the
+  // audit back into view, but only if it has actually scrolled out of sight.
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const el = auditRef.current
+    if (!el) return
+    const top = el.getBoundingClientRect().top
+    if (top < 76 || top > window.innerHeight * 0.5) {
+      const y = window.scrollY + top - 96
+      window.scrollTo({ top: Math.max(0, y), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+    }
+  }, [stage, index, result])
 
   // After sign-in / sign-up, resume a pending audit from sessionStorage.
   useEffect(() => {
@@ -44,15 +65,14 @@ export default function TrackFinderPage() {
     if (!pending) return
     resumedPending.current = true
 
-    setHorizon(pending.horizon)
-    setScope(pending.scope)
+    // Resuming a saved audit after the sign-in redirect is a one-time sync from sessionStorage.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setResult(resolveTrack(pending.horizon, pending.scope))
-    setStep('result')
     setCelebrateKey((k) => k + 1)
     setSaving(true)
     setError('')
 
-    void saveScopeAudit(pending.horizon, pending.scope)
+    void saveScopeAudit(pending.horizon, pending.scope, pending.profile ?? null)
       .then(() => {
         clearPendingScopeAudit()
         setSaved(true)
@@ -61,39 +81,68 @@ export default function TrackFinderPage() {
       .finally(() => setSaving(false))
   }, [authLoading, user, profile])
 
-  function chooseHorizon(id: HorizonId) {
-    setHorizon(id)
-    setScope(null)
-    setResult(null)
-    setSaved(false)
-    setError('')
-    setStep('scope')
+  // Signed-in members get name, email, country and employer prefilled.
+  const values: AuditProfile = {
+    ...EMPTY_AUDIT_PROFILE,
+    name: profile?.name ?? '',
+    email: profile?.email ?? user?.email ?? '',
+    country: profile?.country ?? '',
+    employer: profile?.organisation ?? '',
+    ...form,
   }
+  const setField = (key: keyof AuditProfile) => (value: string) => setForm((f) => ({ ...f, [key]: value }))
 
-  function chooseScope(id: ScopeLevel) {
-    if (!horizon) return
-    const next = resolveTrack(horizon, id)
-    setScope(id)
-    setResult(next)
+  function choose(optionIndex: number) {
+    const next = [...answers.slice(0, index), optionIndex]
+    setAnswers(next)
+    if (index < TOTAL - 1) {
+      setIndex(index + 1)
+      return
+    }
+    const { horizon, scope } = scoreAudit(next)
+    setResult(resolveTrack(horizon, scope))
     setSaved(false)
     setError('')
-    setStep('result')
     setCelebrateKey((k) => k + 1)
   }
 
+  function submitBio(e: FormEvent) {
+    e.preventDefault()
+    if (!values.name.trim()) { setFormError('Please enter your full name.'); return }
+    if (!/^\S+@\S+\.\S+$/.test(values.email.trim())) { setFormError('Please enter a valid email address.'); return }
+    if (!values.country.trim()) { setFormError('Please enter your country.'); return }
+    setFormError('')
+    setStage('org')
+  }
+
+  function submitOrg(e: FormEvent) {
+    e.preventDefault()
+    setStage('questions')
+  }
+
+  function retake() {
+    setAnswers([])
+    setIndex(0)
+    setStage('questions')
+    setResult(null)
+    setSaved(false)
+    setError('')
+  }
+
   async function handleSave() {
-    if (!horizon || !scope) return
+    if (!result) return
+    const { horizon, scope } = result
     setError('')
 
     if (!user) {
-      savePendingScopeAudit({ horizon, scope })
+      savePendingScopeAudit({ horizon, scope, profile: values })
       router.push(`/sign-in?next=${encodeURIComponent('/certification/track-finder')}`)
       return
     }
 
     setSaving(true)
     try {
-      await saveScopeAudit(horizon, scope)
+      await saveScopeAudit(horizon, scope, values)
       clearPendingScopeAudit()
       setSaved(true)
     } catch (err) {
@@ -103,114 +152,134 @@ export default function TrackFinderPage() {
     }
   }
 
+  const question = AUDIT_QUESTIONS[index]
+
   return (
     <PageShell>
       <PageHero
         eyebrow="Track Finder"
         title="Find your path by"
         highlight="the problems you solve."
-        subtitle="AIPEA certification is not about how long you have held a title. Complete the Professional Scope Audit to map your operational footprint to the exact designation that fits."
+        subtitle="Answer five short questions about the work you do every day. We place you on the AIPEA designation that fits, whatever your job title says."
         image="/images/conference/optimized/certification-hero.webp"
         primary={{ label: 'Start the audit', href: '#audit' }}
         secondary={{ label: 'See all designations', href: '/certification#strands' }}
       />
 
-      <section id="audit" style={{ ...SECTION, background: C.bg }}>
-        <div style={INNER}>
-          <SectionHeading
-            eyebrow="Professional Scope Audit"
-            title={step === 'result' ? 'Your recommended track.' : step === 'scope' ? 'Define your accountability.' : 'Select your operational horizon.'}
-            aside={
-              step === 'result'
-                ? 'Based on the nature of the corporate problems you solve daily — not your job title.'
-                : 'Two questions. One designation. No superficial title matching.'
-            }
-          />
+      <section id="audit" style={{ ...SECTION, background: C.bg, overflowAnchor: 'none' }}>
+        <div ref={auditRef} style={{ ...INNER, minHeight: 'min(70vh, 640px)' }}>
+          {!result && stage === 'questions' && (
+            <div style={{ maxWidth: 720, margin: '0 auto' }}>
+              {/* Progress */}
+              <div style={{ display: 'flex', gap: 6 }} role="progressbar" aria-valuemin={1} aria-valuemax={TOTAL} aria-valuenow={index + 1} aria-label="Audit progress">
+                {AUDIT_QUESTIONS.map((q, i) => (
+                  <span key={q.id} style={{ flex: 1, height: 5, borderRadius: 3, background: i <= index ? C.orange : C.border, transition: 'background 0.3s' }} />
+                ))}
+              </div>
+              <p style={{ fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.orange, marginTop: 18 }}>
+                Question {index + 1} of {TOTAL} · {question.topic}
+              </p>
 
-          {/* Progress */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 36 }}>
-            {([
-              { id: 'horizon', n: '01', label: 'Horizon' },
-              { id: 'scope', n: '02', label: 'Scope' },
-              { id: 'result', n: '03', label: 'Result' },
-            ] as const).map((s) => {
-              const active = step === s.id
-              const done =
-                (s.id === 'horizon' && horizon !== null) ||
-                (s.id === 'scope' && scope !== null) ||
-                (s.id === 'result' && result !== null)
-              return (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, opacity: active || done ? 1 : 0.4 }}>
-                  <span style={{
-                    width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center',
-                    fontFamily: dis, fontWeight: 800, fontSize: 11,
-                    background: active ? C.orange : done ? C.navy : C.surface,
-                    color: active || done ? C.white : C.muted,
-                    border: `1px solid ${active ? C.orange : C.border}`,
-                  }}>{done && !active ? <Check size={13} /> : s.n}</span>
-                  <span style={{ fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: active ? C.orange : C.muted }}>{s.label}</span>
+              <motion.div key={question.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+                <h2 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(22px,2.8vw,30px)', letterSpacing: '-0.02em', lineHeight: 1.2, color: C.text, marginTop: 10 }}>
+                  {question.headline}
+                </h2>
+
+                <div style={{ display: 'grid', gap: 12, marginTop: 28 }}>
+                  {question.options.map((opt, i) => {
+                    const selected = answers[index] === i
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => choose(i)}
+                        aria-pressed={selected}
+                        style={{
+                          width: '100%', textAlign: 'left', cursor: 'pointer', display: 'flex', gap: 16, alignItems: 'flex-start',
+                          padding: '18px 20px', borderRadius: 16,
+                          border: `1.5px solid ${selected ? C.orange : C.border}`,
+                          background: selected ? 'rgba(232,80,26,0.05)' : C.white,
+                          transition: 'border-color 0.2s, background 0.2s',
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.orange }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = selected ? C.orange : C.border }}
+                      >
+                        <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center', fontFamily: dis, fontWeight: 800, fontSize: 12, background: selected ? C.orange : C.surface, color: selected ? C.white : C.muted }}>
+                          {LETTERS[i]}
+                        </span>
+                        <span style={{ fontFamily: bod, fontSize: 15, lineHeight: 1.6, color: C.text }}>{opt.text}</span>
+                      </button>
+                    )
+                  })}
                 </div>
-              )
-            })}
-          </div>
+              </motion.div>
 
-          {step === 'horizon' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="aipea-feature-grid">
-              {HORIZON_OPTIONS.map((opt, i) => (
-                <Reveal key={opt.id} delay={0.06 * i}>
-                  <button
-                    type="button"
-                    onClick={() => chooseHorizon(opt.id)}
-                    style={{
-                      width: '100%', textAlign: 'left', cursor: 'pointer',
-                      padding: '28px 26px', borderRadius: 20, border: `1.5px solid ${C.border}`,
-                      background: C.white, boxShadow: '0 12px 34px rgba(17,28,66,0.06)',
-                      transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.orange; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 18px 48px rgba(27,42,94,0.12)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 12px 34px rgba(17,28,66,0.06)' }}
-                  >
-                    <p style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: C.orange, marginBottom: 10 }}>Option {opt.id}</p>
-                    <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 20, color: C.text, letterSpacing: '-0.02em', lineHeight: 1.2 }}>{opt.label}</h3>
-                    <p style={{ fontFamily: bod, fontSize: 12.5, color: C.faint, marginTop: 6 }}>{opt.subtitle}</p>
-                    <p style={{ fontFamily: bod, fontSize: 13.5, lineHeight: 1.65, color: C.muted, marginTop: 14 }}>{opt.body}</p>
-                  </button>
-                </Reveal>
-              ))}
+              <button type="button" onClick={() => (index > 0 ? setIndex(index - 1) : setStage('org'))} style={{ marginTop: 24, background: 'none', border: 'none', cursor: 'pointer', fontFamily: bod, fontSize: 13.5, color: C.muted, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <ArrowLeft size={14} /> Back
+              </button>
             </div>
           )}
 
-          {step === 'scope' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, maxWidth: 920, margin: '0 auto' }} className="aipea-feature-grid">
-              {SCOPE_OPTIONS.map((opt, i) => (
-                <Reveal key={opt.id} delay={0.06 * i}>
-                  <button
-                    type="button"
-                    onClick={() => chooseScope(opt.id)}
-                    style={{
-                      width: '100%', textAlign: 'left', cursor: 'pointer',
-                      padding: '30px 28px', borderRadius: 20, border: `1.5px solid ${C.border}`,
-                      background: C.white, boxShadow: '0 12px 34px rgba(17,28,66,0.06)',
-                      transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.orange; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 18px 48px rgba(27,42,94,0.12)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 12px 34px rgba(17,28,66,0.06)' }}
-                  >
-                    <p style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: C.orange, marginBottom: 10 }}>{opt.label}</p>
-                    <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 22, color: C.text, letterSpacing: '-0.02em', lineHeight: 1.2 }}>{opt.subtitle}</h3>
-                    <p style={{ fontFamily: bod, fontSize: 14, lineHeight: 1.7, color: C.muted, marginTop: 14 }}>{opt.body}</p>
-                  </button>
-                </Reveal>
-              ))}
-              <div style={{ gridColumn: '1 / -1', textAlign: 'center', marginTop: 8 }}>
-                <button type="button" onClick={() => setStep('horizon')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: bod, fontSize: 13, color: C.muted, textDecoration: 'underline' }}>
-                  ← Change operational horizon
+          {!result && stage === 'bio' && (
+            <motion.form key="bio" onSubmit={submitBio} noValidate initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }} style={{ maxWidth: 720, margin: '0 auto' }}>
+              <StepBar total={2} current={1} />
+              <p style={stepEyebrow}>Step 1 of 2 · Bio &amp; contact</p>
+              <h2 style={stepTitle}>Tell us a little about you.</h2>
+              <p style={stepIntro}>Name, email and country are required. Then one more short step and five questions.</p>
+
+              <div style={{ display: 'grid', gap: 16, marginTop: 28 }}>
+                <TextField label="Full name" required value={values.name} onChange={setField('name')} autoComplete="name" />
+                <TextField label="Email address" required type="email" value={values.email} onChange={setField('email')} autoComplete="email" />
+                <TextField label="Country of residence" required value={values.country} onChange={setField('country')} autoComplete="country-name" placeholder="Ghana" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="aipea-feature-grid">
+                  <TextField label="Phone / WhatsApp (optional)" type="tel" value={values.phone} onChange={setField('phone')} autoComplete="tel" />
+                  <TextField label="City / region (optional)" value={values.city} onChange={setField('city')} autoComplete="address-level2" />
+                </div>
+              </div>
+
+              {formError && <p role="alert" style={errorBox}>{formError}</p>}
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', marginTop: 28 }}>
+                <button type="submit" style={{ ...primaryBtn, border: 'none', cursor: 'pointer' }}>Continue <ArrowRight size={14} /></button>
+              </div>
+            </motion.form>
+          )}
+
+          {!result && stage === 'org' && (
+            <motion.form key="org" onSubmit={submitOrg} noValidate initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }} style={{ maxWidth: 720, margin: '0 auto' }}>
+              <StepBar total={2} current={2} />
+              <p style={stepEyebrow}>Step 2 of 2 · Professional context</p>
+              <h2 style={stepTitle}>Where do you work?</h2>
+              <p style={stepIntro}>Everything here is optional. It helps us place you in the right cohort.</p>
+
+              <div style={{ display: 'grid', gap: 16, marginTop: 28 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="aipea-feature-grid">
+                  <TextField label="Current job title" value={values.jobTitle} onChange={setField('jobTitle')} placeholder="e.g. Senior Executive Assistant" />
+                  <TextField label="Employer / organisation" value={values.employer} onChange={setField('employer')} autoComplete="organization" />
+                </div>
+                <label style={{ display: 'grid', gap: 6 }}>
+                  <span style={fieldLabel}>Industry / sector</span>
+                  <select value={values.industry} onChange={(e) => setField('industry')(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
+                    <option value="">Select…</option>
+                    {INDUSTRIES.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </label>
+              </div>
+
+              <ChoiceGroup label="Who do you directly report to?" options={REPORTING_LEVELS} value={values.reportingLevel} onChange={setField('reportingLevel')} />
+              <ChoiceGroup label="Preferred delivery format" options={DELIVERY_FORMATS} value={values.deliveryFormat} onChange={setField('deliveryFormat')} />
+              <ChoiceGroup label="How will your certification be funded?" options={SPONSORSHIPS} value={values.sponsorship} onChange={setField('sponsorship')} />
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', marginTop: 28 }}>
+                <button type="submit" style={{ ...primaryBtn, border: 'none', cursor: 'pointer' }}>Start the audit <ArrowRight size={14} /></button>
+                <button type="button" onClick={() => setStage('bio')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: bod, fontSize: 13.5, color: C.muted, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <ArrowLeft size={14} /> Back
                 </button>
               </div>
-            </div>
+            </motion.form>
           )}
 
-          {step === 'result' && result && (
+          {result && (
             <Reveal>
               <div style={{ position: 'relative', maxWidth: 820, margin: '0 auto' }}>
                 <ResultConfetti burstKey={celebrateKey} />
@@ -225,7 +294,7 @@ export default function TrackFinderPage() {
                   }}
                 >
                 <div style={{ padding: '36px 40px', background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyDark} 100%)`, color: C.white }}>
-                  <p style={{ fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.orangeOnDark }}>Recommended track</p>
+                  <p style={{ fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.orangeOnDark }}>Your recommended track</p>
                   <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(28px,3.4vw,40px)', letterSpacing: '-0.03em', lineHeight: 1.05, marginTop: 12 }}>
                     {result.track.name}
                   </h3>
@@ -237,9 +306,14 @@ export default function TrackFinderPage() {
 
                 <div style={{ padding: '32px 40px', display: 'grid', gap: 22 }}>
                   <MetaRow label="Primary focus" value={result.coreFocus} />
-                  <MetaRow label="Operational horizon" value={result.strand.horizon} />
-                  <MetaRow label="Target accountability" value={result.track.scopeLabel} />
-                  <MetaRow label="The problem you solve" value={result.problemSolved} />
+                  <div>
+                    <p style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.faint, marginBottom: 8 }}>Why this fits you</p>
+                    <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
+                      {result.bullets.map((b) => (
+                        <li key={b} style={{ fontFamily: bod, fontSize: 14.5, lineHeight: 1.6, color: C.text }}>{b}</li>
+                      ))}
+                    </ul>
+                  </div>
                   <div>
                     <p style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.faint, marginBottom: 8 }}>Key capstone</p>
                     <p style={{ fontFamily: dis, fontWeight: 800, fontSize: 17, color: C.text }}>{result.track.capstone.name}</p>
@@ -256,7 +330,7 @@ export default function TrackFinderPage() {
                     <div style={{ padding: '16px 18px', borderRadius: 14, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.28)' }}>
                       <p style={{ fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.text }}>Audit saved to your member profile.</p>
                       <p style={{ fontFamily: bod, fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.6 }}>
-                        Your track results email is on its way to {profile?.email ?? 'your account email'}. You can also review this recommendation anytime from your dashboard.
+                        You can review this recommendation anytime from your dashboard.
                       </p>
                       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 16 }}>
                         <Link href="/dashboard" style={primaryBtn}>Go to dashboard <ArrowRight size={14} /></Link>
@@ -266,19 +340,19 @@ export default function TrackFinderPage() {
                   ) : (
                     <div style={{ display: 'grid', gap: 14 }}>
                       <button type="button" onClick={() => void handleSave()} disabled={saving} style={{ ...primaryBtn, opacity: saving ? 0.7 : 1, border: 'none', cursor: saving ? 'default' : 'pointer', width: '100%', justifyContent: 'center' }}>
-                        {saving ? 'Saving your audit…' : user ? 'Save audit & email my results' : 'Sign in to save & email my results'}
+                        {saving ? 'Saving your audit…' : user ? 'Save my results' : 'Sign in to save my results'}
                         {!saving && <ArrowRight size={14} />}
                       </button>
                       {!user && (
                         <p style={{ fontFamily: bod, fontSize: 13, color: C.muted, textAlign: 'center', lineHeight: 1.6 }}>
-                          Anyone can run the audit. Saving it to your profile and receiving the post-audit email requires an AIPEA account.{' '}
-                          <Link href={`/sign-up?next=${encodeURIComponent('/certification/track-finder')}`} style={{ color: C.orange, fontWeight: 600 }} onClick={() => { if (horizon && scope) savePendingScopeAudit({ horizon, scope }) }}>
+                          Anyone can run the audit. Saving it to your profile needs an AIPEA account.{' '}
+                          <Link href={`/sign-up?next=${encodeURIComponent('/certification/track-finder')}`} style={{ color: C.orange, fontWeight: 600 }} onClick={() => savePendingScopeAudit({ horizon: result.horizon, scope: result.scope, profile: values })}>
                             Create a free Associate account →
                           </Link>
                         </p>
                       )}
                       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <button type="button" onClick={() => { setStep('horizon'); setHorizon(null); setScope(null); setResult(null); setSaved(false) }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: bod, fontSize: 13, color: C.muted, textDecoration: 'underline' }}>
+                        <button type="button" onClick={retake} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: bod, fontSize: 13, color: C.muted, textDecoration: 'underline' }}>
                           Retake the audit
                         </button>
                         <Link href="/certification#strands" style={{ fontFamily: bod, fontSize: 13, color: C.muted }}>Compare all designations</Link>
@@ -289,16 +363,16 @@ export default function TrackFinderPage() {
                 </motion.div>
               </div>
 
-              {saved && (
+              {(saved || values.sponsorship === EMPLOYER_FUNDED) && (
                 <div style={{ maxWidth: 820, margin: '28px auto 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }} className="aipea-feature-grid">
-                  <NextStepCard
+                  {saved && <NextStepCard
                     icon={<Download size={18} color={C.orange} />}
                     title="Review your prospectus"
                     body={`Download the curriculum breakdown for the ${result.track.acronym} path.`}
                     href={PROSPECTUS_HREF}
                     cta="Download PDF"
                     download
-                  />
+                  />}
                   <NextStepCard
                     icon={<Mail size={18} color={C.orange} />}
                     title="Justify corporate funding"
@@ -343,6 +417,73 @@ export default function TrackFinderPage() {
         secondary={{ label: 'Explore certification', href: '/certification' }}
       />
     </PageShell>
+  )
+}
+
+const stepEyebrow: CSSProperties = { fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.orange, marginTop: 18 }
+const stepTitle: CSSProperties = { fontFamily: dis, fontWeight: 800, fontSize: 'clamp(22px,2.8vw,30px)', letterSpacing: '-0.02em', lineHeight: 1.2, color: C.text, marginTop: 10 }
+const stepIntro: CSSProperties = { fontFamily: bod, fontSize: 15, lineHeight: 1.7, color: C.muted, marginTop: 10 }
+const errorBox: CSSProperties = { fontFamily: bod, fontSize: 13, color: '#c0392b', background: 'rgba(192,57,43,0.06)', border: '1px solid rgba(192,57,43,0.18)', borderRadius: 8, padding: '12px 14px', marginTop: 24 }
+
+function StepBar({ total, current }: { total: number; current: number }) {
+  return (
+    <div style={{ display: 'flex', gap: 6 }} role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={current} aria-label="Profile progress">
+      {Array.from({ length: total }, (_, i) => (
+        <span key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i < current ? C.orange : C.border, transition: 'background 0.3s' }} />
+      ))}
+    </div>
+  )
+}
+
+const inputStyle: CSSProperties = {
+  width: '100%', fontFamily: bod, fontSize: 15, color: C.text, background: C.white,
+  border: `1.5px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', outline: 'none',
+}
+const fieldLabel: CSSProperties = { fontFamily: dis, fontSize: 12, fontWeight: 700, color: C.text }
+
+function TextField({ label, value, onChange, required, type = 'text', placeholder, autoComplete }: {
+  label: string; value: string; onChange: (v: string) => void; required?: boolean
+  type?: string; placeholder?: string; autoComplete?: string
+}) {
+  return (
+    <label style={{ display: 'grid', gap: 6 }}>
+      <span style={fieldLabel}>{label}{required && <span style={{ color: C.orange }}> *</span>}</span>
+      <input
+        type={type} value={value} placeholder={placeholder} autoComplete={autoComplete}
+        onChange={(e) => onChange(e.target.value)} style={inputStyle}
+        onFocus={(e) => { e.currentTarget.style.borderColor = C.orange }}
+        onBlur={(e) => { e.currentTarget.style.borderColor = C.border }}
+      />
+    </label>
+  )
+}
+
+function ChoiceGroup({ label, options, value, onChange }: {
+  label: string; options: string[]; value: string; onChange: (v: string) => void
+}) {
+  return (
+    <fieldset style={{ border: 'none', padding: 0, margin: '28px 0 0' }}>
+      <legend style={{ ...fieldLabel, marginBottom: 10 }}>{label}</legend>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+        {options.map((o) => {
+          const on = value === o
+          return (
+            <button
+              key={o} type="button" aria-pressed={on} onClick={() => onChange(on ? '' : o)}
+              style={{
+                cursor: 'pointer', fontFamily: bod, fontSize: 13.5, lineHeight: 1.4, textAlign: 'left',
+                padding: '10px 16px', borderRadius: 999,
+                border: `1.5px solid ${on ? C.orange : C.border}`,
+                background: on ? 'rgba(232,80,26,0.06)' : C.white, color: C.text,
+                transition: 'border-color 0.2s, background 0.2s',
+              }}
+            >
+              {o}
+            </button>
+          )
+        })}
+      </div>
+    </fieldset>
   )
 }
 
