@@ -1,27 +1,18 @@
 'use client'
 
-import { FileText, Newspaper, GraduationCap } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { C, dis, bod, INNER, SECTION } from '@/components/site/tokens'
 import {
-  PageShell, PageHero, SectionHeading, FeatureGrid, SplitFeature, CTASection, type Feature,
+  PageShell, PageHero, SectionHeading, CTASection,
 } from '@/components/site/PageKit'
 import { Reveal } from '@/components/site/Reveal'
-import { STRANDS, TRIMESTER_DELIVERABLES, CONTACT } from '@/lib/facts'
+import { CONTACT } from '@/lib/facts'
 
-// The three "courses" this page used to advertise (Executive Communication
-// Mastery, Calendar & Priorities Management, Board & C-Suite Support, each with a
-// Q2/Q3/Q4 2026 date) were invented, as were four templates and three insight
-// articles. AIPEA's actual learning offer is the certification strands, so that is
-// what the library section now points at. Templates and insights are stated as
-// forthcoming — the client's answers were "tools to be loaded" and, on career
-// guides, "not sure I get this".
-
-const strandCards: Feature[] = STRANDS.map(s => ({
-  icon: GraduationCap,
-  label: s.duration,
-  title: s.name,
-  desc: s.focus,
-}))
+// The courses this page used to advertise were invented, as were four templates
+// and three insight articles. The learning offer itself lives on the
+// Certification page. Articles, work forms and templates are stated as forthcoming:
+// the client's answers were "tools to be loaded" and, on career guides, "not sure
+// I get this". Replace the ComingSoon block with real content once it is supplied.
 
 function ComingSoon({ icon: Icon, title, body }: { icon: typeof FileText; title: string; body: string }) {
   return (
@@ -50,67 +41,20 @@ export default function ResourcesPage() {
         subtitle="AIPEA's learning model is not built on passive listening. Every module ends in a concrete deliverable that adds value to your current employer."
         image="/images/conference/optimized/resources-hero.webp"
         primary={{ label: 'See the tracks', href: '/certification#strands' }}
-        secondary={{ label: 'What you build', href: '#artifacts' }}
+        secondary={{ label: 'What is coming', href: '#library' }}
       />
 
-      <section id="courses" style={{ ...SECTION, background: C.bg }}>
+      <section id="library" style={{ ...SECTION, background: C.bg }}>
         <div style={INNER}>
           <SectionHeading
-            eyebrow="Learning pathways"
-            title="Three strands, tailored to your scope."
-            aside="Specialised, modular pathways for personal assistants, executive assistants and chiefs of staff. Each runs 6, 9 or 12 months."
-          />
-          <FeatureGrid items={strandCards} columns={3} />
-          <Reveal delay={0.12}>
-            <p style={{ textAlign: 'center', marginTop: 34 }}>
-              <a href="/certification#strands" style={{ fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.orange }}>
-                See all six designations →
-              </a>
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      <section id="artifacts" style={{ ...SECTION, background: C.surface }}>
-        <div style={INNER}>
-          <SplitFeature
-            reverse
-            image="/images/conference/optimized/gallery-01.webp"
-            eyebrow="Work your employer can use"
-            title="Every quarter produces something real."
-            body="On the 12-month Chief of Staff track you complete a piece of work every trimester (three months), so your employer sees a return before you qualify."
-            points={TRIMESTER_DELIVERABLES.map(t => `${t.n}: ${t.deliverable}`)}
-            cta={{ label: 'Explore certification', href: '/certification' }}
-          />
-        </div>
-      </section>
-
-      <section id="tools" style={{ ...SECTION, background: C.bg }}>
-        <div style={INNER}>
-          <SectionHeading
-            eyebrow="Templates & tools"
-            title="A practical toolkit for members."
-            aside="Reusable assets for the everyday work of executive support, available to members as they are released."
+            eyebrow="Articles, forms and templates"
+            title="A practical library for members."
+            aside="Reusable resources for the everyday work of executive support, plus news and perspectives from across the AIPEA network."
           />
           <ComingSoon
             icon={FileText}
-            title="The member toolkit is being loaded."
-            body="Templates and checklists are being prepared for the member library. Members are notified as each one is published."
-          />
-        </div>
-      </section>
-
-      <section id="insights" style={{ ...SECTION, background: C.surface }}>
-        <div style={INNER}>
-          <SectionHeading
-            eyebrow="News & insights"
-            title="Stories from the profession."
-            aside="Perspectives and updates from across the AIPEA network."
-          />
-          <ComingSoon
-            icon={Newspaper}
-            title="The first pieces are being written."
-            body="AIPEA will publish member voices, standards updates and news from the institute here."
+            title="The library is being built."
+            body="Articles, work forms and templates are being prepared. Members are notified as each one is published."
           />
         </div>
       </section>
