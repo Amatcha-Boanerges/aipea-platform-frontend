@@ -292,26 +292,29 @@ export const MEMBERSHIP_BENEFITS = [
   { feature: 'Member directory listing', values: [true, true, true] },
   { feature: 'Employer-searchable directory', values: [true, true, true] },
   { feature: 'Member events & community', values: [true, true, true] },
-  { feature: 'Speaking opportunities at AIPEA events', values: [true, true, true] },
+  { feature: 'Speaking opportunities at AIPEA events', values: [false, true, true] },
   { feature: 'Conference discount', values: [false, true, true] },
   { feature: 'Mentorship matching (coming soon)', values: [false, true, true] },
 ] as const
 
 // --- Events ---------------------------------------------------------------------
 
-// [CI §5]. Note the naming: it is "PA Conference 2026" this year and migrates to
-// "AIPEA Conference 2027" from next year. Never "AIPEA Annual Conference 2026".
+// [CI §5] + client website review (2026-10-08). PA Conference 2026 has taken place;
+// the next edition is the AIPEA Conference 2027, 13–14 May 2027.
 export const CONFERENCE = {
-  name: 'PA Conference 2026',
-  startDate: new Date('2026-07-23T09:00:00'),
-  dateLabel: '23–24 July 2026',
+  name: 'AIPEA Conference 2027',
+  startDate: new Date('2027-05-13T09:00:00'),
+  dateLabel: '13–14 May 2027',
+  /** Short form for calendar rows. */
+  dateShort: '13–14 MAY',
   days: 2,
   venue: 'Labadi Beach Hotel',
   city: 'Accra, Ghana',
+  /** Client-supplied description. */
+  description:
+    'Two days with Personal Assistants, Executive Assistants, Chiefs of Staff, Administrative and Business support professionals across the continent.',
   /** "Not yet." — so no member discount is advertised for this edition. */
   memberDiscount: null,
-  /** Renaming from the 2027 edition onward. */
-  futureName: 'AIPEA Conference 2027',
 } as const
 
 // --- Leadership -----------------------------------------------------------------

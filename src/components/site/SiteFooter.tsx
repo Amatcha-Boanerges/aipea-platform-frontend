@@ -31,7 +31,7 @@ const footerCols: { h: string; links: { label: string; href: string }[] }[] = [
   { h: 'Explore', links: [
     { label: 'Certification', href: '/certification' },
     { label: 'Designations & tracks', href: '/certification#strands' },
-    { label: 'PA Conference 2026', href: '/events#conference' },
+    { label: 'AIPEA Conference 2027', href: '/events#conference' },
     { label: 'Resources', href: '/resources' },
   ] },
   { h: 'Institute', links: [

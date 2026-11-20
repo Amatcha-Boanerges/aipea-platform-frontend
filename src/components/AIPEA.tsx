@@ -170,7 +170,7 @@ function Magnetic({ children, strength = 0.35, style }: { children: React.ReactN
 }
 
 function SectionHeader({ statement, aside, align = 'split', nowrap = false }: {
-  statement: string; aside: string; align?: 'split' | 'center' | 'stacked'; nowrap?: boolean
+  statement: string; aside?: string; align?: 'split' | 'center' | 'stacked'; nowrap?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-80px' as `${number}px` })
@@ -185,7 +185,7 @@ function SectionHeader({ statement, aside, align = 'split', nowrap = false }: {
     return (
       <div ref={ref} style={{ textAlign: 'center', maxWidth: nowrap ? 'none' : 720, margin: `0 auto ${S.headerGap}px` }}>
         <motion.h2 {...rise(0)} style={{ fontFamily: dis, fontWeight: 800, color: C.text, fontSize: nowrap ? 'clamp(22px,3.4vw,56px)' : 'clamp(30px,4vw,56px)', lineHeight: 1.05, letterSpacing: '-0.03em', whiteSpace: nowrap ? 'nowrap' : 'normal' }}>{statement}</motion.h2>
-        <motion.p {...rise(0.08)} style={{ fontFamily: bod, fontSize: 15, lineHeight: 1.7, color: C.muted, marginTop: S.xs }}>{aside}</motion.p>
+        {aside && <motion.p {...rise(0.08)} style={{ fontFamily: bod, fontSize: 15, lineHeight: 1.7, color: C.muted, marginTop: S.xs }}>{aside}</motion.p>}
       </div>
     )
   }
@@ -298,10 +298,6 @@ function Hero() {
         <div style={{ ...INNER, width: '100%' }}>
           <div className="aipea-hero-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 0.95fr) minmax(260px, 0.45fr)', gap: 48, alignItems: 'center' }}>
             <div>
-              <motion.p {...fade(0.1)} style={{ fontFamily: dis, fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#FFB08F', marginBottom: S.sm, textShadow: '0 2px 16px rgba(0,0,0,0.42)' }}>
-                Founding membership now open
-              </motion.p>
-
               <motion.h1 {...fade(0.18)} className="aipea-hero-h1" style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(38px,5vw,76px)', lineHeight: 0.98, letterSpacing: '-0.04em', color: C.white, maxWidth: 860, textShadow: '0 4px 28px rgba(0,0,0,0.42)' }}>
                 Africa&apos;s professional home for <span style={{ color: '#FF9A70' }}>Personal &amp; Executive Assistants.</span>
               </motion.h1>
@@ -323,20 +319,13 @@ function Hero() {
               </motion.div>
 
               <motion.div {...fade(0.5)} className="aipea-hero-values" style={{ marginTop: S.xl }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 18, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(10,16,40,0.26)', backdropFilter: 'blur(12px)', borderRadius: 999, padding: '10px 18px', fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.76)' }}>
-                  <span>Growth</span>
-                  <span style={{ width: 4, height: 4, borderRadius: '50%', background: C.orangeOnDark }} />
-                  <span>Value</span>
-                  <span style={{ width: 4, height: 4, borderRadius: '50%', background: C.orangeOnDark }} />
-                  <span>Impact</span>
-                </div>
+                <p style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(22px,2.6vw,34px)', letterSpacing: '0.1em', textTransform: 'uppercase', color: C.white, textShadow: '0 3px 22px rgba(0,0,0,0.45)', lineHeight: 1.2 }}>
+                  Growth<span style={{ color: C.orangeOnDark }}>.</span> Value<span style={{ color: C.orangeOnDark }}>.</span> Impact<span style={{ color: C.orangeOnDark }}>.</span>
+                </p>
               </motion.div>
             </div>
 
             <motion.aside {...fade(0.42)} className="aipea-hero-card" style={{ justifySelf: 'end', width: 'min(100%, 340px)', borderRadius: 22, border: '1px solid rgba(255,255,255,0.22)', background: 'rgba(10,16,40,0.46)', backdropFilter: 'blur(16px)', padding: 24, color: C.white }}>
-              <p style={{ fontFamily: dis, fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.orangeOnDark, marginBottom: 16 }}>
-                Confirmed event
-              </p>
               <h2 style={{ fontFamily: dis, fontWeight: 800, fontSize: 26, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 10 }}>
                 {CONFERENCE.name}
               </h2>
@@ -357,119 +346,18 @@ function Hero() {
   )
 }
 
-// --- Marquee ------------------------------------------------------------------
-
-const marqueeItemsB = ['Growth', 'Value', 'Impact', 'Recognition', 'Community', 'Mentorship', 'Certification', 'Advocacy']
-
-// Client asked for both hero marquee bands gone. The services band is deleted; this
-// values band is kept but off. Flip to true to restore it.
-const SHOW_VALUES_MARQUEE: boolean = false
-
-function MarqueeRow({ items, reverse = false, filled = false }: { items: string[]; reverse?: boolean; filled?: boolean }) {
-  const row = (
-    <div style={{ display: 'flex', flexShrink: 0 }}>
-      {items.map((it, i) => (
-        <span key={i} style={{ display: 'inline-flex', alignItems: 'center', padding: '0 28px', fontFamily: dis, fontWeight: 700, fontSize: filled ? 13 : 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: filled ? C.white : C.muted }}>
-          {it}<span style={{ width: 5, height: 5, borderRadius: '50%', background: filled ? C.white : C.orange, marginLeft: 28, flexShrink: 0 }} />
-        </span>
-      ))}
-    </div>
-  )
-  return (
-    <div className={reverse ? 'aipea-marquee-rev' : 'aipea-marquee'} style={{ display: 'flex', width: 'max-content' }}>{row}{row}</div>
-  )
-}
-
-function Marquee() {
-  if (!SHOW_VALUES_MARQUEE) return null
-  return (
-    <div style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, overflow: 'hidden' }}>
-      <div style={{ background: C.orange, padding: '11px 0', overflow: 'hidden' }}>
-        <MarqueeRow items={marqueeItemsB} reverse filled />
-      </div>
-    </div>
-  )
-}
-
-// --- Editorial moment (ASAP / Nova-style typographic break) --------------------
-
-function EditorialMoment() {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' as `${number}px` })
-  return (
-    <section style={{ padding: `${S.lg}px 40px ${S.section}px`, background: C.bg, borderBottom: `1px solid ${C.border}` }}>
-      <div ref={ref} style={{ ...INNER }}>
-        {/* Full-width image with overlaid headline */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: EASE }}
-          style={{ position: 'relative', height: 480, borderRadius: 20, overflow: 'hidden', marginBottom: S.lg }}
-        >
-          <Image
-            src="/images/conference/optimized/hero-banner.webp"
-            alt="Professionals in a strategic boardroom meeting"
-            fill
-            sizes="(max-width: 768px) 100vw, 1200px"
-            style={{ objectFit: 'cover', objectPosition: 'center top' }}
-          />
-          {/* Base dim */}
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(8,14,38,0.52)' }} />
-          {/* Bottom gradient for text legibility */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(8,14,38,0.82) 0%, rgba(8,14,38,0.18) 55%, transparent 100%)' }} />
-          <div style={{ position: 'absolute', bottom: 48, left: 48, right: 48, textAlign: 'center' }}>
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.12, ease: EASE }}
-              style={{ fontFamily: bod, fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 16, letterSpacing: '0.04em' }}
-            >
-              Rewrite your role.
-            </motion.p>
-            <motion.h2
-              initial={{ opacity: 0, y: 28 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.75, delay: 0.2, ease: EASE }}
-              style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(36px,5.5vw,72px)', lineHeight: 0.95, letterSpacing: '-0.035em', color: C.white }}
-            >
-              Go from support staff<br />to <span style={{ color: C.orange }}>strategic partner.</span>
-            </motion.h2>
-          </div>
-        </motion.div>
-        {/* Body text and CTA, centered below image */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.32, ease: EASE }}
-          style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto' }}
-        >
-          <p style={{ fontFamily: bod, fontSize: 16, lineHeight: 1.75, color: C.muted, marginBottom: 28 }}>
-            Your title doesn&apos;t capture the value you bring. AIPEA equips you with accountability-based designations and a pan-African network built for the professionals who hold the executive office together.
-          </p>
-          <Link href="/sign-up"
-            style={{ fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.white, background: C.orange, padding: '12px 24px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', transition: 'background 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.background = C.orangeDim)}
-            onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-            Join AIPEA today <ArrowRight size={15} />
-          </Link>
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
 // --- Pillar strip (ASAP homepage: Membership · Resources · Cert · Events) -----
 
 const pillars = [
-  { icon: Users,         label: 'Membership',    title: 'Connect, learn, and grow.',     desc: 'Join a pan-African community of executive professionals.', href: '#membership' },
-  { icon: GraduationCap, label: 'Certification', title: 'Certified on scope, not years.', desc: 'Six designations across three professional strands.', href: '/certification' },
+  { icon: Users,         label: 'Membership',    title: 'Connect, learn and grow.',      desc: 'Join a Pan-African community of executive professionals.', href: '#membership' },
+  { icon: GraduationCap, label: 'Certification', title: 'Certified on scope, not only years.', desc: 'Six designations across three professional strands.', href: '/certification' },
   { icon: BookOpen,      label: 'Resources',     title: 'Built to be deployed.',          desc: 'Every module ends in an artifact your employer can use.', href: '/resources' },
   { icon: Calendar,      label: 'Events',        title: 'Peer-to-peer, face-to-face.',    desc: `${CONFERENCE.name} — ${CONFERENCE.dateLabel}, Accra.`, href: '#events' },
 ]
 
 function PillarStrip() {
   return (
-    <section style={{ padding: `0 40px ${S.section}px`, background: C.bg }}>
+    <section style={{ padding: `${S.xl}px 40px ${S.section}px`, background: C.bg }}>
       <div style={INNER}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }} className="aipea-pillars-grid">
           {pillars.map((p, i) => {
@@ -553,7 +441,7 @@ function EventHighlight() {
               {CONFERENCE.dateLabel} · {CONFERENCE.venue}, {CONFERENCE.city}
             </p>
             <p style={{ fontFamily: bod, fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: 420 }}>
-              Two days with administrative and operational professionals from across the continent. Speaker line-up and registration details to be announced.
+              {CONFERENCE.description}
             </p>
             <a href="#contact"
               style={{ marginTop: 28, display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.navyDark, background: C.white, padding: '13px 26px', borderRadius: 8, textDecoration: 'none', transition: 'transform 0.2s' }}
@@ -646,7 +534,7 @@ function About() {
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(10,16,40,0.6) 0%, rgba(10,16,40,0.18) 22%, rgba(10,16,40,0.28) 55%, rgba(10,16,40,0.82) 100%)' }} />
 
             <div className="aipea-about-kicker" style={{ position: 'absolute', top: 26, left: 30, fontFamily: dis, fontSize: 9, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.72)' }}>
-              AIPEA Community · PA Conference
+              Community. Conferences.
             </div>
 
             <div className="aipea-about-avatars" style={{ position: 'absolute', top: 22, right: 30, display: 'flex', alignItems: 'center' }}>
@@ -665,8 +553,8 @@ function About() {
                 Professional recognition for the people behind executive performance.
               </p>
               <div className="aipea-about-pills" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 28 }}>
-                <span style={{ fontFamily: dis, fontWeight: 700, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.white, border: '1px solid rgba(255,255,255,0.35)', borderRadius: 999, padding: '8px 16px' }}>Rooted in Ghana</span>
-                <span style={{ fontFamily: dis, fontWeight: 700, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.white, border: '1px solid rgba(255,255,255,0.35)', borderRadius: 999, padding: '8px 16px' }}>Serving Africa</span>
+                <span style={{ fontFamily: dis, fontWeight: 700, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.white, border: '1px solid rgba(255,255,255,0.35)', borderRadius: 999, padding: '8px 16px' }}>Rooted in Africa</span>
+                <span style={{ fontFamily: dis, fontWeight: 700, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.white, border: '1px solid rgba(255,255,255,0.35)', borderRadius: 999, padding: '8px 16px' }}>Serving the World</span>
               </div>
             </div>
           </Reveal>
@@ -741,7 +629,7 @@ function CoreValues() {
   return (
     <section id="values" style={{ ...SECTION, background: C.bg }}>
       <div style={INNER}>
-        <SectionHeader align="center" statement="The values behind the standard." aside="Three principles. Everything we build." />
+        <SectionHeader align="center" statement="The values behind the standard." />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18 }} className="aipea-values-grid">
           {coreValues.map((v, i) => (
             <ScrollReveal key={v.title} delay={0.1 * i}>
@@ -770,7 +658,7 @@ function PricingSection() {
   return (
     <section id="membership" style={{ ...SECTION, background: C.surface }}>
       <div style={INNER}>
-        <SectionHeader align="center" statement="Choose the membership that fits your stage." aside="Membership is your standing in the institute. Certification is earned separately." />
+        <SectionHeader align="center" statement="Choose the membership that suits your ambition." aside="Membership is your standing in the institute. Certification is earned separately." />
         <PricingBreakdown tiers={priceTiers} rows={priceRows} note="Membership renews annually from your intake date. Professional and Fellow applications are completed through the Secretariat." />
       </div>
     </section>
@@ -1242,8 +1130,6 @@ export function AIPEA() {
     <div className="aipea" style={{ background: C.bg, color: C.text }}>
       <SiteNav overDark />
       <Hero />
-      <Marquee />
-      <EditorialMoment />
       <PillarStrip />
       <About />
       <CoreValues />

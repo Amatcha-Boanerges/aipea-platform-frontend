@@ -362,7 +362,7 @@ export default function Dashboard() {
               { iconColor: ORANGE,    icon: <Users     size={18} color={ORANGE} />,    title: 'Member Directory',    desc: 'Connect with executive assistants across the AIPEA network as it grows.', status: 'Building' as const },
               { iconColor: NAVY_DARK, icon: <BarChart3 size={18} color={NAVY_DARK} />, title: 'CPD Tracker',         desc: 'Log your professional development hours once the CPD framework is finalised.', status: 'Building' as const },
               { iconColor: '#7c3aed', icon: <BookOpen  size={18} color="#7c3aed" />,   title: 'Course Library',      desc: 'Certification-backed courses built specifically for assistants in Africa.', status: 'Planned' as const },
-              { iconColor: '#059669', icon: <Calendar  size={18} color="#059669" />,   title: 'Events & Conference', desc: 'PA Conference 2026 in Accra, plus member meetups as the calendar is confirmed.', status: 'Building' as const },
+              { iconColor: '#059669', icon: <Calendar  size={18} color="#059669" />,   title: 'Events & Conference', desc: 'AIPEA Conference 2027 in Accra, plus member meetups as the calendar is confirmed.', status: 'Building' as const },
             ]).map((card, i) => (
               <motion.div key={card.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.62, delay: 0.08 + i * 0.07, ease: EASE }} style={{ height: '100%' }}>
                 <FeatureCard {...card} />

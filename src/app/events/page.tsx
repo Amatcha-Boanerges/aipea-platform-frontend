@@ -41,8 +41,7 @@ export default function EventsPage() {
         eyebrow="Events"
         title="Where the profession"
         highlight="comes together."
-        subtitle={`${CONFERENCE.name} is AIPEA's flagship gathering: two days at the ${CONFERENCE.venue} in Accra on ${CONFERENCE.dateLabel}.`}
-        image="/images/conference/optimized/events-stage.webp"
+        subtitle={`${CONFERENCE.name} is AIPEA's flagship gathering: two days at the ${CONFERENCE.venue} in Accra on ${CONFERENCE.dateLabel}.`}        image="/images/conference/optimized/events-stage.webp"
         primary={{ label: 'Register interest', href: '#conference' }}
         secondary={{ label: 'See the calendar', href: '#calendar' }}
       />
@@ -53,7 +52,7 @@ export default function EventsPage() {
             image="/images/conference/optimized/gallery-02.webp"
             eyebrow="Flagship event"
             title={`${CONFERENCE.name}.`}
-            body="The premier annual gathering of administrative and operational minds on the continent — part high-octane learning, part celebration of the community. From 2027 the event becomes the AIPEA Conference."
+            body={CONFERENCE.description}
             points={[
               `${CONFERENCE.dateLabel} · ${CONFERENCE.days} days`,
               `${CONFERENCE.venue}, ${CONFERENCE.city}`,
@@ -70,7 +69,7 @@ export default function EventsPage() {
           <SectionHeading
             eyebrow="Regional meetups"
             title="Bringing members face to face."
-            aside="AIPEA is building toward a pan-African calendar of meetups, connecting Anglophone and Francophone members across the continent."
+            aside="AIPEA is building toward a Pan-African calendar of meetups, connecting Anglophone and Francophone members across the continent."
           />
           <ComingSoon
             icon={MapPin}
@@ -105,7 +104,7 @@ export default function EventsPage() {
           <div style={{ maxWidth: 860, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Reveal>
               <div className="aipea-cal-row" style={{ display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: 20, alignItems: 'center', padding: '22px 26px', background: C.bg, border: '1px solid rgba(232,80,26,0.28)', borderRadius: 16 }}>
-                <span style={{ fontFamily: dis, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', color: C.orange }}>23–24 JUL</span>
+                <span style={{ fontFamily: dis, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', color: C.orange }}>{CONFERENCE.dateShort}</span>
                 <span>
                   <span style={{ display: 'block', fontFamily: dis, fontWeight: 800, fontSize: 17, color: C.text, letterSpacing: '-0.01em' }}>{CONFERENCE.name}</span>
                   <span style={{ display: 'block', fontFamily: bod, fontSize: 13, color: C.muted, marginTop: 3 }}>{CONFERENCE.venue}, {CONFERENCE.city}</span>

@@ -162,7 +162,7 @@ export default function MembershipPage() {
             points={[
               'A unique AIPEA member ID, issued on joining',
               'A directory listing that employers can search',
-              'Speaking opportunities at AIPEA events',
+              'Speaking opportunities at AIPEA events, from Professional membership upwards',
               'Conference discounts from Professional membership upwards',
               'Certificates are issued on completing a certification, not on joining',
             ]}
@@ -177,7 +177,7 @@ export default function MembershipPage() {
             reverse
             image="/images/conference/optimized/membership-benefits.webp"
             eyebrow="Member directory"
-            title="A pan-African network, one search away."
+            title="A Pan-African network, one search away."
             body="Every AIPEA member joins the register: a place to find peers and opportunities, and to be found by the organisations looking for you. The long-term goal is the AIPEA Continental Registry, spanning Anglophone and Francophone Africa."
             points={[
               'Every member listed with a verified member ID',
