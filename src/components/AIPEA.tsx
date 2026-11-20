@@ -122,26 +122,6 @@ function Reveal({ children, delay = 0, from = 'up', style, className }: {
   )
 }
 
-function Magnetic({ children, strength = 0.35, style }: { children: React.ReactNode; strength?: number; style?: React.CSSProperties }) {
-  const reduced = useReducedMotion()
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const sx = useSpring(x, { stiffness: 220, damping: 14 })
-  const sy = useSpring(y, { stiffness: 220, damping: 14 })
-  function move(e: React.MouseEvent<HTMLDivElement>) {
-    const r = e.currentTarget.getBoundingClientRect()
-    x.set((e.clientX - r.left - r.width / 2) * strength)
-    y.set((e.clientY - r.top - r.height / 2) * strength)
-  }
-  function reset() { x.set(0); y.set(0) }
-  return (
-    <motion.div onMouseMove={reduced ? undefined : move} onMouseLeave={reset}
-      style={{ display: 'inline-block', x: reduced ? 0 : sx, y: reduced ? 0 : sy, ...style }}>
-      {children}
-    </motion.div>
-  )
-}
-
 function SectionHeader({ statement, aside, align = 'split', nowrap = false }: {
   statement: string; aside?: string; align?: 'split' | 'center' | 'stacked'; nowrap?: boolean
 }) {
@@ -581,7 +561,7 @@ function CoreValues() {
 
 function Contact() {
   const [submitted, setSubmitted] = useState(false)
-  const inputStyle: React.CSSProperties = { width: '100%', background: C.surface, border: `1.5px solid ${C.border}`, borderRadius: 10, padding: '13px 16px', fontSize: 14, color: C.text, outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s', fontFamily: bod }
+  const inputStyle: React.CSSProperties = { width: '100%', background: C.surface, border: `1.5px solid ${C.border}`, borderRadius: 10, padding: '10px 14px', fontSize: 14, color: C.text, outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s', fontFamily: bod }
   const labelStyle: React.CSSProperties = { display: 'block', fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.faint, marginBottom: 7 }
   type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
   const onFocus = (e: React.FocusEvent<Field>) => {
@@ -601,7 +581,7 @@ function Contact() {
     <section id="contact" style={{ ...SECTION, background: C.surface }}>
       <div style={INNER}>
         <ScrollReveal>
-          <div style={{ maxWidth: 640, marginBottom: S.headerGap }}>
+          <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center', marginBottom: S.lg }}>
             <p style={{ fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.orange, marginBottom: 14 }}>Contact</p>
             <div style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(32px,4vw,52px)', color: C.text, lineHeight: 1.05, letterSpacing: '-0.03em' }}>Get in touch.</div>
             <p style={{ fontFamily: bod, fontSize: 16, lineHeight: 1.7, color: C.muted, marginTop: S.sm }}>Questions about membership, certification, or partnering with AIPEA? Send us a note and the team will get back to you.</p>
@@ -609,8 +589,8 @@ function Contact() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.08}>
-          <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', borderRadius: 24, overflow: 'hidden', border: `1px solid ${C.border}`, boxShadow: '0 24px 64px rgba(27,42,94,0.14)' }} className="aipea-contact-grid">
-            <div style={{ background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyDark} 100%)`, padding: 40, position: 'relative', overflow: 'hidden', color: C.white, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', maxWidth: 900, margin: '0 auto', borderRadius: 20, overflow: 'hidden', border: `1px solid ${C.border}`, boxShadow: '0 24px 64px rgba(27,42,94,0.14)' }} className="aipea-contact-grid">
+            <div style={{ background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyDark} 100%)`, padding: 28, position: 'relative', overflow: 'hidden', color: C.white, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 82% 10%, rgba(232,80,26,0.28), transparent 38%)', pointerEvents: 'none' }} />
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <div style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.orangeOnDark, marginBottom: 24 }}>Reach us directly</div>
@@ -635,7 +615,7 @@ function Contact() {
               <p style={{ position: 'relative', zIndex: 1, fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.62)', lineHeight: 1.7, marginTop: 28 }}>Prefer to join straight away? Associate membership is free — you can <Link href="/sign-up" style={{ color: C.orangeOnDark, fontWeight: 600 }}>sign up here</Link>.</p>
             </div>
 
-            <div style={{ background: C.bg, padding: 42 }}>
+            <div style={{ background: C.bg, padding: 28 }}>
               {submitted ? (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
                   <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(232,80,26,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
@@ -647,25 +627,23 @@ function Contact() {
               ) : (
                 <div>
                   <div style={{ fontFamily: dis, fontWeight: 800, fontSize: 20, color: C.text, letterSpacing: '-0.01em' }}>Send us a message</div>
-                  <p style={{ fontFamily: bod, fontSize: 13, color: C.muted, marginBottom: 28, marginTop: 6 }}>We&apos;d love to hear from you.</p>
-                  <div className="aipea-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <p style={{ fontFamily: bod, fontSize: 13, color: C.muted, marginBottom: 18, marginTop: 4 }}>We&apos;d love to hear from you.</p>
+                  <div className="aipea-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                     <div><label style={labelStyle}>Full name</label><input style={inputStyle} onFocus={onFocus} onBlur={onBlur} onMouseEnter={onHoverIn} onMouseLeave={onHoverOut} placeholder="Adwoa Mensah" /></div>
                     <div><label style={labelStyle}>Email address</label><input style={inputStyle} onFocus={onFocus} onBlur={onBlur} onMouseEnter={onHoverIn} onMouseLeave={onHoverOut} placeholder="you@email.com" /></div>
                   </div>
-                  <div style={{ marginBottom: 16 }}><label style={labelStyle}>Subject</label>
+                  <div style={{ marginBottom: 12 }}><label style={labelStyle}>Subject</label>
                     <select style={inputStyle} onFocus={onFocus} onBlur={onBlur} onMouseEnter={onHoverIn} onMouseLeave={onHoverOut}><option>General enquiry</option><option>Membership</option><option>Certification</option><option>Events</option><option>Partnership</option><option>Press or media</option><option>Other</option></select>
                   </div>
-                  <div style={{ marginBottom: 24 }}><label style={labelStyle}>Message</label>
-                    <textarea rows={5} style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.6 }} onFocus={onFocus} onBlur={onBlur} onMouseEnter={onHoverIn} onMouseLeave={onHoverOut} placeholder="How can we help?" />
+                  <div style={{ marginBottom: 16 }}><label style={labelStyle}>Message</label>
+                    <textarea rows={3} style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.6 }} onFocus={onFocus} onBlur={onBlur} onMouseEnter={onHoverIn} onMouseLeave={onHoverOut} placeholder="How can we help?" />
                   </div>
-                  <Magnetic strength={0.25} style={{ width: '100%' }}>
-                    <button onClick={() => setSubmitted(true)}
-                      style={{ width: '100%', background: C.orange, color: C.white, fontFamily: dis, fontWeight: 700, fontSize: 14, padding: 14, borderRadius: 8, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = C.orangeDim)}
-                      onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-                      Send message <ArrowRight size={15} />
-                    </button>
-                  </Magnetic>
+                  <button onClick={() => setSubmitted(true)}
+                    style={{ width: '100%', background: C.orange, color: C.white, fontFamily: dis, fontWeight: 700, fontSize: 14, padding: 12, borderRadius: 8, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = C.orangeDim)}
+                    onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
+                    Send message <ArrowRight size={15} />
+                  </button>
                 </div>
               )}
             </div>
