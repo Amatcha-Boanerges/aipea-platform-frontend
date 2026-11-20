@@ -98,7 +98,7 @@ body {
   .aipea-tier-row { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
   .aipea-spotlight-grid { grid-template-columns: repeat(2,1fr) !important; }
   .aipea-testi-left { min-height: 280px !important; }
-  .aipea section { padding: 72px 28px !important; }
+  .aipea section { padding: 56px 28px !important; }
 }
 @media (max-width: 768px) {
   .aipea-checkout-grid { grid-template-columns: 1fr !important; }
@@ -234,7 +234,7 @@ body {
    desktop poster squeezed into a narrow column. */
 @media (max-width: 640px) {
   .aipea-about-section {
-    padding: 44px 18px 54px !important;
+    padding: 56px 18px !important;
   }
 
   .aipea-about-section h2 {

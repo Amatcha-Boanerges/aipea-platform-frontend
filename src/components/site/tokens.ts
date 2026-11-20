@@ -26,4 +26,4 @@ export const dis = 'var(--font-syne), sans-serif'
 export const bod = 'var(--font-inter), sans-serif'
 
 export const INNER: React.CSSProperties = { maxWidth: 1400, margin: '0 auto' }
-export const SECTION: React.CSSProperties = { padding: '120px 40px' }
+export const SECTION: React.CSSProperties = { padding: '72px 40px' }

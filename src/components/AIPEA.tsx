@@ -51,7 +51,7 @@ const S = {
   md: 24,
   lg: 40,
   xl: 64,
-  section: 88,   // vertical padding inside a section
+  section: 72,   // vertical padding inside a section
   headerGap: 44, // section header to its content
 } as const
 
