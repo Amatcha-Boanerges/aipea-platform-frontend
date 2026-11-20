@@ -1,8 +1,8 @@
 /**
  * AIPEA Track Finder — Professional Scope Audit engine.
  *
- * Source: [TF] AIPEA Track Finder + [DD] Deep Dive Role Descriptor Framework.
- * Placement is a 3×2 matrix: operational horizon × accountability scope.
+ * Source: AIPEA Pathfinder Audit System spec + [DD] Deep Dive Role Descriptor Framework.
+ * Five scored questions place a candidate on a 3×2 matrix: strand (horizon) × level (scope).
  * Canonical PA base acronym is CERTPA (client direction, 2026-07-24).
  */
 
@@ -11,57 +11,152 @@ import { STRANDS, type Strand, type Track } from './facts'
 export type HorizonId = 1 | 2 | 3
 export type ScopeLevel = 'A' | 'B'
 
-export type HorizonOption = {
-  id: HorizonId
-  label: string
-  subtitle: string
-  body: string
+/** Pre-audit bio and profile layer (spec step 1 and 2). */
+export type AuditProfile = {
+  name: string
+  email: string
+  phone: string
+  country: string
+  city: string
+  jobTitle: string
+  employer: string
+  industry: string
+  reportingLevel: string
+  deliveryFormat: string
+  sponsorship: string
 }
 
-export type ScopeOption = {
-  id: ScopeLevel
-  label: string
-  subtitle: string
-  body: string
+export const EMPTY_AUDIT_PROFILE: AuditProfile = {
+  name: '', email: '', phone: '', country: '', city: '', jobTitle: '', employer: '',
+  industry: '', reportingLevel: '', deliveryFormat: '', sponsorship: '',
 }
 
-/** Step 1 copy from the Track Finder PDF. */
-export const HORIZON_OPTIONS: HorizonOption[] = [
+export const INDUSTRIES = [
+  'Banking & Financial Services', 'Oil & Gas / Energy', 'Public Sector & Government',
+  'Telecommunications & Tech', 'Non-Profit & Development (NGOs)', 'FMCG & Retail',
+  'Professional Services', 'Healthcare & Pharma', 'Wellbeing', 'Other',
+]
+
+export const REPORTING_LEVELS = [
+  'CEO / Managing Director / Founder',
+  'C-Suite Executive (CFO, COO, CMO, CHRO, CTO)',
+  'General Manager / Regional Director / Head of Department',
+  'Multiple Executives / Departmental Pool',
+]
+
+export const DELIVERY_FORMATS = [
+  'In-person Saturday sessions (Accra, Ghana)',
+  'Live online evening seminars (Pan-African cohort)',
+]
+
+export const SPONSORSHIPS = [
+  'Self-funded professional',
+  'Employer / corporate-funded',
+  'Sponsored, other',
+]
+
+/** Sponsorship answer that unlocks the "Letter to Your Boss" pack. */
+export const EMPLOYER_FUNDED = SPONSORSHIPS[1]
+
+/** Points an answer adds to each strand (PA/EA/CoS) and level (base/senior). */
+export type AnswerScore = {
+  pa?: number
+  ea?: number
+  cos?: number
+  base?: number
+  senior?: number
+}
+
+export type AuditOption = { text: string; score: AnswerScore }
+export type AuditQuestion = {
+  id: string
+  topic: string
+  headline: string
+  options: AuditOption[]
+}
+
+/**
+ * The five-question Pathfinder Audit (source: AIPEA Pathfinder Audit System spec).
+ * Axis 1 routes the strand (PA / EA / CoS); axis 2 routes the level
+ * (Base designation vs Senior designation).
+ */
+export const AUDIT_QUESTIONS: AuditQuestion[] = [
   {
-    id: 1,
-    label: 'Immediate & Tactical',
-    subtitle: 'Day-to-day to Month-to-date',
-    body: 'I take chaos, messy schedules, complex travel and unstructured task lists and turn them into absolute order, speed and daily operational flow.',
+    id: 'focus',
+    topic: 'Primary focus',
+    headline: 'What best describes the main problem you are hired to solve every day?',
+    options: [
+      { text: 'I remove friction from an executive’s daily execution: schedules, travel, inboxes, administrative workflows and immediate task lists.', score: { pa: 3, base: 1 } },
+      { text: 'I bridge C-Suite vision and operational diplomacy: board and VIP communications, executive briefs and cross-functional alignment.', score: { ea: 3, senior: 1 } },
+      { text: 'I act as an enterprise integrator: building automated software pipelines, managing project portfolios, directing post-merger integrations or driving institutional growth.', score: { cos: 3, senior: 2 } },
+    ],
   },
   {
-    id: 2,
-    label: 'Strategic & Diplomatic',
-    subtitle: 'Month-to-date to Quarter-to-date',
-    body: 'I navigate corporate politics, align board and C-Suite stakeholders, synthesize complex data into executive briefs and track quarterly objectives.',
+    id: 'budget',
+    topic: 'Financial authority',
+    headline: 'What is your direct accountability for company money and budgets?',
+    options: [
+      { text: 'I manage petty cash, process individual travel expenses and reconcile executive credit card statements.', score: { pa: 2, base: 2 } },
+      { text: 'I oversee departmental vendor SLAs, negotiate administrative service contracts and manage office asset budgets.', score: { pa: 1, senior: 2 } },
+      { text: 'I track C-Suite operational budgets, audit variances on executive spending and help prepare board-level financial reports.', score: { ea: 2, senior: 1 } },
+      { text: 'I design and defend enterprise operating budgets, manage capital expenditure plans, or source international grants and fundraising resources.', score: { cos: 3, senior: 2 } },
+    ],
   },
   {
-    id: 3,
-    label: 'Systemic & Institutional',
-    subtitle: 'Quarter-to-date to Multi-Year',
-    body: 'I architect enterprise-wide workflows, build low-code automation pipelines, direct cross-functional teams, or secure institutional growth resources.',
+    id: 'governance',
+    topic: 'Governance and meetings',
+    headline: 'How involved are you in your organisation’s governance and high-stakes meetings?',
+    options: [
+      { text: 'I handle venue setup, diary scheduling, catering and guest logistics for team or executive meetings.', score: { pa: 2, base: 2 } },
+      { text: 'I compile board packs, draft minutes to statutory standard and maintain the post-meeting action tracker.', score: { ea: 3, base: 1 } },
+      { text: 'I enforce governance policies across divisions, audit board committee structures and ensure executives comply with board directives.', score: { ea: 1, senior: 2 } },
+      { text: 'I sit in executive and board meetings as the CEO’s strategic proxy, resolving deadlocks and directing department heads on resolutions.', score: { cos: 3, senior: 2 } },
+    ],
+  },
+  {
+    id: 'technology',
+    topic: 'Technology',
+    headline: 'How do you use digital systems and technology in your work?',
+    options: [
+      { text: 'I use standard productivity tools (Microsoft 365, Google Workspace) and AI prompts to draft communications, filter inboxes and organise calendars.', score: { pa: 2, base: 2 } },
+      { text: 'I build and manage shared project dashboards (Asana, Monday.com, Notion) to track cross-departmental deliverables.', score: { ea: 2, senior: 1 } },
+      { text: 'I connect multi-platform software (Zapier, Power Automate, Salesforce) to run autonomous executive-office workflows.', score: { cos: 3, base: 1 } },
+      { text: 'I use machine learning models to analyse enterprise workflows, remove bottlenecks and safeguard digital assets.', score: { cos: 3, senior: 2 } },
+    ],
+  },
+  {
+    id: 'leadership',
+    topic: 'Leadership and scope',
+    headline: 'What level of leadership do you exercise over people and operational culture?',
+    options: [
+      { text: 'I work as a solo, high-touch operator dedicated to the smooth daily functioning of my immediate leader.', score: { pa: 2, base: 2 } },
+      { text: 'I supervise, mentor and set performance targets for junior administrative staff, receptionists or office support pools.', score: { pa: 1, senior: 2 } },
+      { text: 'I manage high-stakes external relationships with investors, board members, regulators and government officials on behalf of the C-Suite.', score: { ea: 3, senior: 1 } },
+      { text: 'I direct cross-functional project teams, oversee restructuring initiatives and coach the company’s administrative pipeline.', score: { cos: 3, senior: 2 } },
+    ],
   },
 ]
 
-/** Step 2 copy from the Track Finder PDF. */
-export const SCOPE_OPTIONS: ScopeOption[] = [
-  {
-    id: 'A',
-    label: 'Scope Level A',
-    subtitle: 'Individual & Execution Mastery',
-    body: "My primary accountability is single-handedly executing tasks, protecting an executive's focus, managing individual logistics, or writing executive briefs.",
-  },
-  {
-    id: 'B',
-    label: 'Scope Level B',
-    subtitle: 'Ecosystem, Resource & Team Leadership',
-    body: 'My accountability extends to managing budgets, leading admin pools, managing vendor contracts, running board governance, or driving enterprise systems.',
-  },
-]
+/**
+ * Turns the five chosen option indexes into a strand and level.
+ * Ties between strands resolve in the spec's order (PA, then EA, then CoS);
+ * the Senior designation is returned only when Senior strictly beats Base.
+ */
+export function scoreAudit(answers: number[]): { horizon: HorizonId; scope: ScopeLevel } {
+  const t = { pa: 0, ea: 0, cos: 0, base: 0, senior: 0 }
+  AUDIT_QUESTIONS.forEach((q, i) => {
+    const s = q.options[answers[i]]?.score
+    if (!s) return
+    t.pa += s.pa ?? 0
+    t.ea += s.ea ?? 0
+    t.cos += s.cos ?? 0
+    t.base += s.base ?? 0
+    t.senior += s.senior ?? 0
+  })
+  const top = Math.max(t.pa, t.ea, t.cos)
+  const horizon: HorizonId = t.pa === top ? 1 : t.ea === top ? 2 : 3
+  return { horizon, scope: t.senior > t.base ? 'B' : 'A' }
+}
 
 export type TrackFinderResult = {
   horizon: HorizonId
@@ -161,6 +256,7 @@ export function resolveTrack(horizon: HorizonId, scope: ScopeLevel): TrackFinder
 export type PendingScopeAudit = {
   horizon: HorizonId
   scope: ScopeLevel
+  profile?: AuditProfile
 }
 
 const PENDING_KEY = 'aipea_pending_scope_audit'
@@ -202,10 +298,11 @@ export type ScopeAuditRecord = {
   targetAccountability: string
   coreValueDriver: string
   bullets: [string, string, string]
+  profile: AuditProfile | null
   createdAt: unknown
 }
 
-export function buildScopeAuditRecord(result: TrackFinderResult, createdAt: unknown): ScopeAuditRecord {
+export function buildScopeAuditRecord(result: TrackFinderResult, createdAt: unknown, profile: AuditProfile | null = null): ScopeAuditRecord {
   return {
     horizon: result.horizon,
     scope: result.scope,
@@ -218,6 +315,7 @@ export function buildScopeAuditRecord(result: TrackFinderResult, createdAt: unkn
     targetAccountability: result.track.scopeLabel,
     coreValueDriver: result.coreValueDriver,
     bullets: result.bullets,
+    profile,
     createdAt,
   }
 }
