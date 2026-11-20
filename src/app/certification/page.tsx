@@ -5,10 +5,10 @@ import Image from 'next/image'
 import { Layers, ClipboardCheck, ArrowRight, ArrowLeft, CornerRightDown } from 'lucide-react'
 import { C, dis, bod, INNER, SECTION } from '@/components/site/tokens'
 import {
-  PageShell, PageHero, SectionHeading, SplitFeature, StatBand, CTASection,
+  PageShell, PageHero, SectionHeading, SplitFeature, CTASection,
 } from '@/components/site/PageKit'
 import { Reveal } from '@/components/site/Reveal'
-import { STRANDS, ASSESSMENT_STAGES, TRIMESTER_DELIVERABLES, CONTACT } from '@/lib/facts'
+import { STRANDS, ASSESSMENT_STAGES } from '@/lib/facts'
 
 // This page previously sold "Associate / Professional / Fellow certification
 // pathways", which conflated membership with credentials. The client was explicit
@@ -210,60 +210,6 @@ export default function CertificationPage() {
         </div>
       </section>
 
-      {/* Trimester deliverables --------------------------------------------- */}
-      <section id="artifacts" style={{ ...SECTION, background: C.surface }}>
-        <div style={INNER}>
-          <SectionHeading
-            eyebrow="Chief of Staff track: four trimesters"
-            title="Real work for your employer, every trimester."
-            aside="A trimester is three months. The 12-month Chief of Staff strand runs for four, and each one ends in a piece of work your employer can use, so they see a return before you qualify. The Personal Assistant and Executive Assistant strands are shorter and finish with their own final project."
-          />
-          <div className="aipea-trimester-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
-            {TRIMESTER_DELIVERABLES.map((t, i) => (
-              <Reveal key={t.n} delay={0.06 * i} style={{ height: '100%' }}>
-                <div style={{ height: '100%', padding: '28px 24px', borderRadius: 20, background: C.bg, border: `1px solid ${C.border}` }}>
-                  <span style={{ fontFamily: dis, fontWeight: 700, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: C.orange }}>{t.n}</span>
-                  <p style={{ fontFamily: dis, fontWeight: 800, fontSize: 18, lineHeight: 1.25, letterSpacing: '-0.02em', color: C.text, marginTop: 14 }}>{t.deliverable}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <StatBand stats={[
-        { value: 'Three strands', label: 'Personal Assistant, Executive Assistant and Chief of Staff.' },
-        { value: 'Six designations', label: 'Two accountability tracks within every strand.' },
-        { value: '6, 9 or 12 months', label: 'Track length set by the scope of the strand.' },
-        { value: 'Defended capstones', label: 'Every designation ends in a live simulation or an oral defense.' },
-      ]} />
-
-      {/* Registry ----------------------------------------------------------- */}
-      <section id="registry" style={{ ...SECTION, background: C.bg }}>
-        <div style={INNER}>
-          <SplitFeature
-            image="/images/conference/optimized/recognition.jpg"
-            eyebrow="The AIPEA Continental Registry"
-            title="A cross-border register of certified partners."
-            body="The registry is a directory of certified partners."
-            points={[
-              'Every certified member earns the right to use the professional designation after their name',
-              'Employer-facing credential verification',
-            ]}
-            cta={{ label: 'Contact the Secretariat', href: '/about#contact' }}
-          />
-          {/* The client asked us to "build that in" — it is intent, not a live
-              feature, so the page says exactly that rather than implying a
-              working lookup exists. */}
-          <Reveal delay={0.1}>
-            <p style={{ fontFamily: bod, fontSize: 13, lineHeight: 1.7, color: C.faint, textAlign: 'center', maxWidth: 620, margin: '40px auto 0', padding: '16px 20px', border: `1px dashed ${C.border}`, borderRadius: 14 }}>
-              Online credential lookup is not live yet. To verify a member&apos;s standing today,
-              email <a href={`mailto:${CONTACT.email}`} style={{ color: C.orange, fontWeight: 600 }}>{CONTACT.email}</a> and the Secretariat will confirm it directly.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
       {/* CPD — defined as pending, not described ---------------------------- */}
       <section id="cpd" style={{ ...SECTION, background: C.surface }}>
         <div style={INNER}>
@@ -276,7 +222,7 @@ export default function CertificationPage() {
               {[
                 { icon: Layers, title: 'What is settled', desc: 'Certification is accountability-based, and designations are earned through assessed coursework and a defended capstone.' },
                 { icon: ClipboardCheck, title: 'What is being defined', desc: 'The number of CPD hours, the renewal period and the categories that count toward them.' },
-              ].map((row, i) => {
+              ].map((row) => {
                 const Icon = row.icon
                 return (
                   <div key={row.title} style={{ display: 'flex', gap: 18, padding: '22px 24px', borderRadius: 16, background: C.bg, border: `1px solid ${C.border}` }}>
