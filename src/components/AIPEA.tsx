@@ -6,8 +6,6 @@ import {
   motion,
   useInView,
   useReducedMotion,
-  useMotionValue,
-  useSpring,
   type Transition,
 } from 'framer-motion'
 import Link from 'next/link'
@@ -79,30 +77,6 @@ function ScrollReveal({ children, delay = 0, style, className }: {
     </motion.div>
   )
 }
-
-function TiltCard({ children, max = 5, style }: { children: React.ReactNode; max?: number; style?: React.CSSProperties }) {
-  const reduced = useReducedMotion()
-  const rx = useMotionValue(0)
-  const ry = useMotionValue(0)
-  const sRx = useSpring(rx, { stiffness: 150, damping: 16 })
-  const sRy = useSpring(ry, { stiffness: 150, damping: 16 })
-  function onMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (reduced) return
-    const r = e.currentTarget.getBoundingClientRect()
-    const px = (e.clientX - r.left) / r.width - 0.5
-    const py = (e.clientY - r.top) / r.height - 0.5
-    ry.set(px * max * 2)
-    rx.set(-py * max * 2)
-  }
-  function reset() { rx.set(0); ry.set(0) }
-  return (
-    <motion.div onMouseMove={onMove} onMouseLeave={reset}
-      style={{ height: '100%', rotateX: reduced ? 0 : sRx, rotateY: reduced ? 0 : sRy, transformPerspective: 1000, ...style }}>
-      {children}
-    </motion.div>
-  )
-}
-
 
 type Dir = 'up' | 'left' | 'right' | 'scale'
 function Reveal({ children, delay = 0, from = 'up', style, className }: {
@@ -480,75 +454,33 @@ function About() {
 
 // --- Core values (from the AIPEA brochure) -------------------------------------
 
-// The AIPEA DNA. Titles come from facts.ts; the three words under each are a
-// house summary of the fuller descriptions there.
+// The AIPEA DNA titles from facts.ts, each with its three keywords. Plain bordered
+// cards: no hover effects and no descriptive copy.
 const coreValues = [
   { n: '01', title: DNA[0].title, words: ['Learn', 'Advance', 'Lead'] },
   { n: '02', title: DNA[1].title, words: ['Excellence', 'Integrity', 'ROI'] },
   { n: '03', title: DNA[2].title, words: ['Empower', 'Connect', 'Champion'] },
 ]
 
-function ValueCard({ value }: { value: (typeof coreValues)[number] }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <TiltCard>
-      <div
-        className="aipea-value-card"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          position: 'relative', overflow: 'hidden', height: '100%', minHeight: 320, borderRadius: 22,
-          border: `1px solid ${hovered ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.14)'}`,
-          background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyDark} 100%)`,
-          color: C.white, padding: 34,
-          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-          boxShadow: hovered ? '0 32px 80px rgba(27,42,94,0.32)' : '0 12px 40px rgba(27,42,94,0.18)',
-          transform: hovered ? 'translateY(-10px) scale(1.035)' : 'translateY(0) scale(1)',
-          transition: 'border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1)',
-        }}>
-        <div className="aipea-spin" style={{
-          position: 'absolute', top: -54, right: -54, width: 180, height: 180, borderRadius: '50%',
-          border: `1px dashed ${hovered ? 'rgba(232,80,26,0.4)' : 'rgba(255,255,255,0.2)'}`,
-          transition: 'border-color 0.4s ease',
-        }} />
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <span style={{
-            width: 8, height: 8, borderRadius: '50%', marginTop: 6,
-            background: C.orange,
-            boxShadow: hovered ? '0 0 0 6px rgba(232,80,26,0.18)' : '0 0 0 0 rgba(232,80,26,0)',
-            transition: 'box-shadow 0.5s ease',
-          }} />
-          <span style={{ fontFamily: dis, fontWeight: 800, fontSize: 44, letterSpacing: '-0.05em', color: 'rgba(255,255,255,0.18)' }}>{value.n}</span>
-        </div>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 28, letterSpacing: '-0.02em', marginBottom: 14, color: hovered ? C.orangeOnDark : C.white, transition: 'color 0.4s ease' }}>{value.title}</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {value.words.map((w, wi) => (
-              <motion.span key={w}
-                initial={{ opacity: 0, x: -12 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.5, delay: wi * 0.12, ease: EASE }}
-                style={{ fontFamily: dis, fontWeight: 700, fontSize: 19, letterSpacing: '-0.01em', color: hovered ? C.orangeOnDark : 'rgba(255,255,255,0.92)', transition: 'color 0.4s ease' }}>
-                <span style={{ color: C.orange, marginRight: 9 }}>·</span>{w}
-              </motion.span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </TiltCard>
-  )
-}
-
 function CoreValues() {
   return (
     <section id="values" style={{ ...SECTION, background: C.bg }}>
       <div style={INNER}>
         <SectionHeader align="center" statement="The values behind the standard." />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18 }} className="aipea-values-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'clamp(16px,2vw,24px)' }} className="aipea-values-grid">
           {coreValues.map((v, i) => (
             <ScrollReveal key={v.title} delay={0.1 * i}>
-              <ValueCard value={v} />
+              <div style={{ height: '100%', border: `1.5px solid ${C.navy}`, borderRadius: 16, padding: 'clamp(24px,2.6vw,34px)' }}>
+                <span style={{ fontFamily: dis, fontWeight: 800, fontSize: 13, letterSpacing: '0.18em', color: C.orange }}>{v.n}</span>
+                <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(34px,4vw,52px)', letterSpacing: '-0.035em', lineHeight: 1, color: C.text, marginTop: 14 }}>{v.title}</h3>
+                <ul style={{ listStyle: 'none', margin: '22px 0 0', padding: 0, display: 'grid', gap: 8 }}>
+                  {v.words.map((w) => (
+                    <li key={w} style={{ fontFamily: dis, fontWeight: 700, fontSize: 17, letterSpacing: '-0.01em', color: C.navy }}>
+                      <span style={{ color: C.orange, marginRight: 9 }}>·</span>{w}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </ScrollReveal>
           ))}
         </div>

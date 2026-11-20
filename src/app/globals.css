@@ -148,7 +148,6 @@ body {
 @media (max-width: 768px) {
   /* space-between has nothing to distribute once the height floor is gone, so the
      header row and the title would butt together — hold them apart with a gap. */
-  .aipea-value-card   { min-height: 0 !important; padding: 26px !important; gap: 36px !important; }
   .aipea-course-hero  { min-height: 0 !important; padding: 28px !important; }
   .aipea-process-hero { min-height: 0 !important; padding: 26px !important; }
   .aipea-about-photo  { height: 200px !important; }
