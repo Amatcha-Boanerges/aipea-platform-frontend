@@ -102,7 +102,7 @@ Everything is a **Client Component** (`'use client'`). There are no Server Compo
 | `/dashboard` | `app/dashboard/page.tsx` | Own `DashNav` (not `SiteNav`) | Firebase | Member profile card, Track Finder status, roadmap cards |
 | `/checkout` | `app/checkout/page.tsx` | None (own layout) | `localStorage`, Paystack | **Dormant**, nothing links to it |
 
-Navigation structure is **defined in one place**: the `NAV` array at the top of `components/site/SiteNav.tsx` (5 mega-menu groups: Membership, Certification, Events, Resources, About). Most sub-links are hash anchors, such as `/membership#tiers` and `/about#governance`. Footer links are in `SiteFooter.tsx`.
+Navigation structure is **defined in one place**: the `NAV` array at the top of `components/site/SiteNav.tsx` (a flat list of 5 links: Membership, Certification, Events, Resources, About, each going straight to its page, with no dropdowns). The same list feeds the desktop bar and the mobile drawer. Footer links are in `SiteFooter.tsx`.
 
 `sign-in` and `sign-up` accept `?next=<path>`. `safeNextPath()` accepts only paths that start with `/` and not `//`, which blocks open redirects. The default is `/dashboard`.
 
@@ -126,7 +126,7 @@ It imports the shared `SiteNav`, `SiteFooter` and `PricingBreakdown`, so the hom
 |---|---|---|
 | `tokens.ts` | `C` (palette), `EASE`, `dis`/`bod` (font stacks), `INNER`, `SECTION` | All pages except `checkout` and `AIPEA.tsx` (see 12.2) |
 | `PageKit.tsx` | `PageShell`, `PageHero`, `SectionHeading`, `FeatureGrid`, `SplitFeature`, `StatBand`, `CTASection`, `PricingBreakdown` | The 5 content pages, the Track Finder, and `PricingBreakdown` also by the homepage |
-| `SiteNav.tsx` | `SiteNav({overDark})`: fixed bar, hover mega-panels, mobile drawer, scroll-aware background | `PageShell`, `AIPEA` |
+| `SiteNav.tsx` | `SiteNav({overDark})`: fixed bar with flat links, mobile drawer, scroll-aware background | `PageShell`, `AIPEA` |
 | `SiteFooter.tsx` | footer with contact details from `facts.ts` | `PageShell`, `AIPEA` |
 | `Reveal.tsx` | scroll-in fade/slide | Content pages |
 | `Logo.tsx` | `<Image src="/logo/icon.png">` | Nav, footer, dashboard, auth panel |
@@ -304,7 +304,6 @@ Ordered roughly by impact. These are observations about the existing code, not c
 - `dashboard/page.tsx` creates local aliases (`const ORANGE = C.orange`, …) for each token.
 - Membership tier data appears **three times**: `MEMBERSHIP.tiers` in `facts.ts`, `priceTiers` in `AIPEA.tsx`, and an equivalent array in `membership/page.tsx` (line 65). Prices are also in `TIER_PRICING` in `auth.ts` (numeric, ₵) and as strings ("Ghc 1,200"). The currency notation differs (`₵` in code vs `Ghc` in content). This breaks the "single source of truth" rule `facts.ts` states for itself.
 - The "Join AIPEA" CTA and footer, plus the sign-in and sign-up links, are hardcoded in several places rather than from one definition.
-- `SiteNav` embeds hardcoded copy that duplicates facts, for example "23–24 July 2026, Accra", "Founded 2024" and "Three strands, six designations", instead of reading `CONFERENCE` and `ORG`.
 
 ### 12.3 Misleading or non-functional UI
 - **Homepage contact form does nothing.** Submitting only toggles a local "submitted" state (6.6). A visitor believes their message was sent. This is the most serious functional gap.
@@ -332,7 +331,7 @@ Ordered roughly by impact. These are observations about the existing code, not c
 - Naming and comments are out of sync with reality: font variables `--font-syne`/`--font-inter` (both are DM Sans), the `.aipea` class name, and comments referencing "Syne".
 - `facts.ts` mixes Date objects (`CONFERENCE.startDate`), long copy and structural data. `PENDING` is documentation only and nothing reads it at runtime, so unresolved items are not enforced by code.
 - `STRANDS[horizon - 1]` indexing couples Track Finder to array order in `facts.ts`.
-- Anchor-based nav links (`/membership#directory`, `/about#governance`, and others) rely on section `id`s being present. All mega-menu anchors were checked against the page markup and exist, but they are plain strings, so renaming an `id` silently breaks the menu.
+- The Track Finder is linked only from the Certification page and the dashboard, not from the navbar.
 
 ### 12.6 Process and tooling
 - No tests of any kind, including for `resolveTrack`, `safeNextPath` and the auth error mapping, which are pure and easy to test.
