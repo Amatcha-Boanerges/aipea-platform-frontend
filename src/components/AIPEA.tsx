@@ -586,24 +586,6 @@ function Contact() {
   )
 }
 
-// --- CTA Banner ---------------------------------------------------------------
-
-function CTABanner() {
-  const chunk = (
-    <span style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0, fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.white, padding: '0 28px' }}>
-      Where <span style={{ color: C.navyDark, padding: '0 6px' }}>executive excellence</span> meets Africa.
-      <span style={{ padding: '0 24px' }}>Join AIPEA and <span style={{ color: C.navyDark }}>elevate your career.</span></span>
-    </span>
-  )
-  return (
-    <div style={{ background: C.orange, padding: '20px 0', overflow: 'hidden' }}>
-      <div className="aipea-marquee-fast" style={{ display: 'flex', width: 'max-content' }}>
-        {chunk}{chunk}{chunk}{chunk}
-      </div>
-    </div>
-  )
-}
-
 // --- Root ---------------------------------------------------------------------
 
 export function AIPEA() {
@@ -616,7 +598,6 @@ export function AIPEA() {
       <CoreValues />
       <EventHighlight />
       <Contact />
-      <CTABanner />
       <SiteFooter />
     </div>
   )
