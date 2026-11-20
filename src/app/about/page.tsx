@@ -1,13 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import { ShieldCheck, Scale, UsersRound, Mail, MapPin } from 'lucide-react'
+import { ShieldCheck, Scale, UsersRound, Mail, MapPin, GraduationCap, Briefcase, Building2 } from 'lucide-react'
 import { C, dis, bod, INNER, SECTION } from '@/components/site/tokens'
 import {
   PageShell, PageHero, SectionHeading, FeatureGrid, SplitFeature, StatBand, CTASection,
 } from '@/components/site/PageKit'
 import { Reveal } from '@/components/site/Reveal'
-import { ORG, CONTACT, FIGURES, DNA, PURPOSE, LEADERSHIP, SECRETARIAT } from '@/lib/facts'
+import { ORG, CONTACT, FIGURES, DNA, PURPOSE, WHY_WE_EXIST, STAKEHOLDER_STATEMENTS, LEADERSHIP, SECRETARIAT } from '@/lib/facts'
 
 const governance = [
   { icon: UsersRound, label: 'Council',   title: 'Governing Council', desc: SECRETARIAT.council },
@@ -96,7 +96,27 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section id="leadership" style={{ ...SECTION, background: C.bg }}>
+      {/* Why we exist, and what it means for each stakeholder ([CS] Core Statements) */}
+      <section id="why-we-exist" style={{ ...SECTION, background: C.bg }}>
+        <div style={INNER}>
+          <SectionHeading
+            eyebrow="Why we exist"
+            title="Closing the gap between vision and execution."
+            aside={WHY_WE_EXIST}
+          />
+          <FeatureGrid
+            columns={3}
+            items={STAKEHOLDER_STATEMENTS.map((s, i) => ({
+              icon: [GraduationCap, Briefcase, Building2][i],
+              label: s.label,
+              title: s.title,
+              desc: s.quote,
+            }))}
+          />
+        </div>
+      </section>
+
+      <section id="leadership" style={{ ...SECTION, background: C.surface }}>
         <div style={INNER}>
           <SectionHeading
             eyebrow="The Secretariat"
@@ -113,7 +133,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section id="governance" style={{ ...SECTION, background: C.surface }}>
+      <section id="governance" style={{ ...SECTION, background: C.bg }}>
         <div style={INNER}>
           <SectionHeading
             eyebrow="Governance"

@@ -80,13 +80,37 @@ export const DNA = [
   },
 ] as const
 
-/** [ABT] "Our Purpose", which replaces the older "Our Vision" framing. */
-export const PURPOSE =
-  'To be the premier continental authority and certifying body that transforms African business, administrative and operational support professionals into elite, strategic corporate business partners.'
+// [CS] "The Core Statements" (client-supplied, supersedes the [ABT] wording).
 
-/** [ABT] "Why we exist", which replaces the older "Our Mission" framing. */
+/** "Our Purpose", which replaces the older "Our Vision" framing. */
+export const PURPOSE =
+  'To unleash the full strategic potential of Africa’s administrative talent, turning every executive office across the continent into an engine of competitive growth.'
+
+/** "Why We Exist", which replaces the older "Our Mission" framing. */
 export const WHY_WE_EXIST =
-  'We exist to eliminate the gap between executive vision and daily execution. Through high-caliber certification, practical mastery and a powerful peer network, we equip business, administrative and operations professionals to command tech, lead resources and operate as strategic partners.'
+  'We exist to eliminate the gap between executive vision and daily execution. Through high-caliber certification, practical mastery, and a powerful peer network, we equip support professionals to command tech, lead resources, and operate as irreplaceable strategic partners.'
+
+/** [CS] What AIPEA means for each of the three stakeholders, verbatim. */
+export const STAKEHOLDER_STATEMENTS = [
+  {
+    label: 'PAs, EAs & Chiefs of Staff',
+    title: 'For the Professional',
+    quote:
+      'Your career is not a background role; it is a strategic leadership path. AIPEA exists to give you the confidence, digital mastery, and board-level credibility to step out of the shadows of execution and sit comfortably at the table of influence.',
+  },
+  {
+    label: 'HR leaders',
+    title: 'For the HR Director',
+    quote:
+      'Stop guessing the value of your support staff. AIPEA provides a benchmarked, accountability-focused certification framework that turns vague job titles into clear career ladders—helping you retain top administrative talent and measure real organizational ROI.',
+  },
+  {
+    label: 'Executives',
+    title: 'For the CEO & Business Leader',
+    quote:
+      'Your time and vision are your most expensive assets. AIPEA certifies professionals who don’t just manage your diary, but actively protect your focus, optimize your resources, and drive your quarterly objectives forward with zero operational friction.',
+  },
+] as const
 
 // --- Certification: three strands, two tracks each -------------------------------
 
