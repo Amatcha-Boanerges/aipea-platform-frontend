@@ -1,12 +1,13 @@
 'use client'
 
-import { MapPin, Video, CalendarClock } from 'lucide-react'
+import { useState } from 'react'
+import { Video, CalendarClock, ChevronDown, ExternalLink } from 'lucide-react'
 import { C, dis, bod, INNER, SECTION } from '@/components/site/tokens'
 import {
   PageShell, PageHero, SectionHeading, SplitFeature, CTASection,
 } from '@/components/site/PageKit'
 import { Reveal } from '@/components/site/Reveal'
-import { CONFERENCE, CONTACT } from '@/lib/facts'
+import { CONFERENCE, CONTACT, PAST_CONFERENCES } from '@/lib/facts'
 
 // This page used to list six regional hubs (Accra, Lagos, Nairobi, Johannesburg,
 // Cairo, Kigali), three named webinars and a five-row 2026 calendar. None of it
@@ -16,7 +17,7 @@ import { CONFERENCE, CONTACT } from '@/lib/facts'
 
 /** A section that says something is coming without inventing what it will contain. */
 function ComingSoon({ icon: Icon, title, body }: {
-  icon: typeof MapPin; title: string; body: string
+  icon: typeof Video; title: string; body: string
 }) {
   return (
     <Reveal>
@@ -34,6 +35,47 @@ function ComingSoon({ icon: Icon, title, body }: {
   )
 }
 
+/** Year picker for earlier PA Conferences. Each year shows a link to its media once one is supplied. */
+function PastConferences() {
+  const [year, setYear] = useState<number>(PAST_CONFERENCES[PAST_CONFERENCES.length - 1].year)
+  const selected = PAST_CONFERENCES.find(c => c.year === year) ?? PAST_CONFERENCES[0]
+
+  return (
+    <Reveal>
+      <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+        <label htmlFor="pa-year" style={{ display: 'block', fontFamily: dis, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.muted, marginBottom: 10 }}>Choose a year</label>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <select
+            id="pa-year"
+            value={year}
+            onChange={e => setYear(Number(e.target.value))}
+            style={{ appearance: 'none', fontFamily: dis, fontWeight: 700, fontSize: 16, color: C.text, background: C.bg, border: `1.5px solid ${C.borderHover}`, borderRadius: 12, padding: '12px 44px 12px 18px', cursor: 'pointer', minWidth: 220 }}
+          >
+            {PAST_CONFERENCES.map(c => (
+              <option key={c.year} value={c.year}>{c.name}</option>
+            ))}
+          </select>
+          <ChevronDown size={16} color={C.muted} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+        </div>
+
+        <div style={{ marginTop: 28, padding: 'clamp(28px,4vw,44px)', borderRadius: 22, background: C.bg, border: `1px solid ${C.border}` }}>
+          <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(20px,2.2vw,26px)', letterSpacing: '-0.02em', color: C.text }}>{selected.name}</h3>
+          {selected.videoUrl ? (
+            <a href={selected.videoUrl} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 18, fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.white, background: C.orange, padding: '12px 24px', borderRadius: 999 }}>
+              Watch the highlights <ExternalLink size={15} />
+            </a>
+          ) : (
+            <p style={{ fontFamily: bod, fontSize: 14.5, lineHeight: 1.75, color: C.muted, marginTop: 12 }}>
+              Photos and recordings from this conference are being added soon.
+            </p>
+          )}
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
 export default function EventsPage() {
   return (
     <PageShell>
@@ -41,7 +83,8 @@ export default function EventsPage() {
         eyebrow="Events"
         title="Where the profession"
         highlight="comes together."
-        subtitle={`${CONFERENCE.name} is AIPEA's flagship gathering: two days at the ${CONFERENCE.venue} in Accra on ${CONFERENCE.dateLabel}.`}        image="/images/conference/optimized/events-stage.webp"
+        subtitle={`${CONFERENCE.name} is AIPEA's flagship gathering: two days at the ${CONFERENCE.venue} in Accra on ${CONFERENCE.dateLabel}.`}
+        image="/images/conference/optimized/events-stage.webp"
         primary={{ label: 'Register interest', href: '#conference' }}
         secondary={{ label: 'See the calendar', href: '#calendar' }}
       />
@@ -64,18 +107,14 @@ export default function EventsPage() {
         </div>
       </section>
 
-      <section id="regional" style={{ ...SECTION, background: C.surface }}>
+      <section id="pa-conferences" style={{ ...SECTION, background: C.surface }}>
         <div style={INNER}>
           <SectionHeading
-            eyebrow="Regional meetups"
-            title="Bringing members face to face."
-            aside="AIPEA is building toward a Pan-African calendar of meetups, connecting Anglophone and Francophone members across the continent."
+            eyebrow="PA Conferences"
+            title="Where we have gathered before."
+            aside="Pick a year to revisit it."
           />
-          <ComingSoon
-            icon={MapPin}
-            title="The 2026 meetup calendar is being finalised."
-            body="AIPEA currently operates from Accra, Ghana. Dates and host cities for the year's regional meetups will be published here once the calendar is confirmed."
-          />
+          <PastConferences />
         </div>
       </section>
 

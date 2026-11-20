@@ -10,11 +10,11 @@ import { Logo } from './Logo'
 // One flat list drives both the desktop bar and the mobile drawer. Every item
 // goes straight to its own page.
 const NAV = [
+  { label: 'About',         href: '/about' },
   { label: 'Membership',    href: '/membership' },
   { label: 'Certification', href: '/certification' },
   { label: 'Events',        href: '/events' },
   { label: 'Resources',     href: '/resources' },
-  { label: 'About',         href: '/about' },
 ] as const
 
 // --- Mobile drawer --------------------------------------------------------------

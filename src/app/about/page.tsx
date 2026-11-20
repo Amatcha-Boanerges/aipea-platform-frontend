@@ -12,7 +12,7 @@ import { ORG, CONTACT, FIGURES, DNA, PURPOSE, LEADERSHIP, SECRETARIAT } from '@/
 const governance = [
   { icon: UsersRound, label: 'Council',   title: 'Governing Council', desc: SECRETARIAT.council },
   { icon: ShieldCheck, label: 'Secretariat', title: 'The Secretariat', desc: `Headquartered in ${SECRETARIAT.headquarters}, led by a Secretariat Manager and assisted by a Secretariat Coordinator.` },
-  { icon: Scale,      label: 'Standards', title: 'Standards & conduct', desc: 'The code of conduct, complaints procedure and election process are being formalised and will be published in full.' },
+  { icon: Scale,      label: 'Standards', title: 'Standards & conduct', desc: 'The code of conduct and complaints procedure are being formalised and will be published in full.' },
 ]
 
 /** Not every approved leader has an approved headshot yet, so the card falls back
@@ -43,7 +43,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About"
         title="Championing Africa's"
-        highlight="executive assistants."
+        highlight="Personal & Executive Assistants and Chiefs of Staff."
         subtitle={`${ORG.legalName}. ${ORG.tagline}.`}
         image="/images/conference/optimized/about-hero.webp"
         primary={{ label: 'Join AIPEA', href: '/sign-up' }}
@@ -126,7 +126,7 @@ export default function AboutPage() {
               not exist yet. */}
           <Reveal delay={0.12}>
             <p style={{ fontFamily: bod, fontSize: 13, lineHeight: 1.7, color: C.faint, textAlign: 'center', maxWidth: 620, margin: '32px auto 0' }}>
-              Council membership, the election process and the full code of conduct are being
+              Council membership and the full code of conduct are being
               formalised. They will be published here once ratified.
             </p>
           </Reveal>
@@ -154,6 +154,13 @@ export default function AboutPage() {
                       <span style={{ display: 'block', fontFamily: bod, fontSize: 11, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Head office</span>
                       <span style={{ display: 'block', fontFamily: dis, fontWeight: 700, fontSize: 15, color: C.text, marginTop: 2 }}>{CONTACT.location}</span>
                     </span>
+                  </div>
+                  <div>
+                    <a href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: dis, fontWeight: 700, fontSize: 14, color: C.white, background: '#0A66C2', padding: '11px 22px', borderRadius: 999 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+                      Follow us on LinkedIn
+                    </a>
                   </div>
                 </div>
               </div>

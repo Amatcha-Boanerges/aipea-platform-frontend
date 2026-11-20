@@ -317,6 +317,21 @@ export const CONFERENCE = {
   memberDiscount: null,
 } as const
 
+/**
+ * Earlier PA Conferences (client website review, 2026-10-08): 2019, 2022, 2023,
+ * 2024, 2025 and 2026. All media comes from one source (Nasim). Set `videoUrl`
+ * to a YouTube link per year as links are supplied; until then the page says
+ * the material is being added.
+ */
+export const PAST_CONFERENCES: readonly { year: number; name: string; videoUrl: string | null }[] = [
+  { year: 2019, name: 'PA Conference 2019', videoUrl: null },
+  { year: 2022, name: 'PA Conference 2022', videoUrl: null },
+  { year: 2023, name: 'PA Conference 2023', videoUrl: null },
+  { year: 2024, name: 'PA Conference 2024', videoUrl: null },
+  { year: 2025, name: 'PA Conference 2025', videoUrl: null },
+  { year: 2026, name: 'PA Conference 2026', videoUrl: null },
+]
+
 // --- Leadership -----------------------------------------------------------------
 
 // [CI §7] Approved names and exact titles. Samuel Komlavi Tekpor is explicitly OUT
