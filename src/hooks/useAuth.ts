@@ -11,6 +11,7 @@ export interface MemberProfile {
   name: string
   email: string
   country: string
+  organisation: string
   tier: MembershipTier
   status: 'active' | 'pending_payment'
   memberId: string
@@ -56,6 +57,7 @@ export function useAuth(): UseAuthResult {
               name: data.name,
               email: data.email,
               country: data.country,
+              organisation: data.organisation ?? '',
               tier: data.tier,
               status: data.status,
               memberId: data.memberId,

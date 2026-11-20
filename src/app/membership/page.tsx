@@ -189,7 +189,7 @@ export default function MembershipPage() {
       </section>
 
       <CTASection
-        title="Own your path. Claim your credential."
+        title="Take your place in the profession."
         body="Associate membership is free and activates as soon as you sign up."
         primary={{ label: 'Apply for membership', href: '/sign-up' }}
         secondary={{ label: 'Talk to the team', href: '/about#contact' }}

@@ -25,6 +25,7 @@ export interface AssociateSignupInput {
   name: string
   email: string
   country: string
+  organisation: string
   password: string
   newsletterConsent: boolean
 }
@@ -119,6 +120,7 @@ export async function signUpAssociate(pending: AssociateSignupInput): Promise<vo
     name: pending.name,
     email: pending.email,
     country: pending.country,
+    organisation: pending.organisation,
     tier: 'Associate',
     status: 'active',
     newsletterConsent: pending.newsletterConsent,
@@ -147,6 +149,7 @@ async function ensureGoogleProfile(user: User, newsletterConsent: boolean): Prom
     name: user.displayName || user.email?.split('@')[0] || 'AIPEA Member',
     email: user.email ?? '',
     country: '',
+    organisation: '',
     tier: 'Associate',
     status: 'active',
     newsletterConsent,
@@ -210,6 +213,13 @@ export async function signInMember(email: string, password: string): Promise<voi
 
 export async function signOutMember(): Promise<void> {
   await signOut(getFirebaseAuth())
+}
+
+/** Lets a member update where they work when their employer changes. */
+export async function updateOrganisation(organisation: string): Promise<void> {
+  const user = getFirebaseAuth().currentUser
+  if (!user) throw new Error('You must be signed in to update your organisation.')
+  await updateDoc(doc(getFirebaseDb(), 'users', user.uid), { organisation: organisation.trim() })
 }
 
 /**

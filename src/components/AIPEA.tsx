@@ -33,8 +33,8 @@ const C = {
   surface:     '#f7f8fc',
   elevated:    '#eef1f8',
   text:        '#111c42',
-  muted:       'rgba(17,28,66,0.52)',
-  faint:       'rgba(17,28,66,0.2)',
+  muted:       'rgba(17,28,66,0.68)',
+  faint:       'rgba(17,28,66,0.5)',
   border:      'rgba(27,42,94,0.09)',
   borderHover: 'rgba(27,42,94,0.22)',
 } as const

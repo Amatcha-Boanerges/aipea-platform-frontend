@@ -27,6 +27,7 @@ function SignUpForm() {
   const [name,     setName]     = useState('')
   const [email,    setEmail]    = useState('')
   const [country,  setCountry]  = useState('')
+  const [organisation, setOrganisation] = useState('')
   const [password, setPassword] = useState('')
   const [newsletterConsent, setNewsletterConsent] = useState(false)
   const [error,    setError]    = useState('')
@@ -53,6 +54,7 @@ function SignUpForm() {
     if (!name.trim())        { setError('Please enter your full name.'); return }
     if (!email.trim())       { setError('Please enter your email.'); return }
     if (!country.trim())     { setError('Please enter your country.'); return }
+    if (!organisation.trim()) { setError('Please enter your organisation.'); return }
     if (!password)           { setError('Please choose a password.'); return }
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
 
@@ -62,6 +64,7 @@ function SignUpForm() {
         name: name.trim(),
         email: email.trim(),
         country: country.trim(),
+        organisation: organisation.trim(),
         password,
         newsletterConsent,
       })
@@ -98,7 +101,7 @@ function SignUpForm() {
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
       <BrandPanel
         flex="0 0 44%"
-        headline={<>Join Africa&apos;s leading professional community for EAs.</>}
+        headline={<>Join Africa&apos;s leading professional community for Personal &amp; Executive Assistants.</>}
         sub="Get certified, connected, and recognised. Create your account in under two minutes."
       />
 
@@ -117,6 +120,8 @@ function SignUpForm() {
           </div>
 
           <Field label="Country" value={country} onChange={setCountry} placeholder="Ghana" autoComplete="country-name" />
+
+          <Field label="Organisation" value={organisation} onChange={setOrganisation} placeholder="Where you currently work" autoComplete="organization" />
 
           <PasswordField label="Create a password" value={password} onChange={setPassword} autoComplete="new-password" />
 

@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Users, BookOpen, Calendar, BarChart3, LogOut, ArrowRight } from 'lucide-react'
-import { signOutMember, formatJoinDate, firstName } from '@/lib/auth'
+import { signOutMember, updateOrganisation, formatJoinDate, firstName } from '@/lib/auth'
 import { useAuth, type MemberProfile } from '@/hooks/useAuth'
 import { C, dis, bod, EASE } from '@/components/site/tokens'
 import { Logo } from '@/components/site/Logo'
@@ -68,12 +68,12 @@ function DashNav({ user, onSignOut }: { user: MemberProfile; onSignOut: () => vo
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(232,80,26,0.18)', border: '1px solid rgba(232,80,26,0.36)', display: 'grid', placeItems: 'center', fontFamily: dis, fontWeight: 800, fontSize: 11, color: ORANGE_ON_DARK, flexShrink: 0 }}>
             {initials}
           </div>
-          <span className="aipea-dash-name" style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontFamily: bod, whiteSpace: 'nowrap' }}>{user.name}</span>
+          <span className="aipea-dash-name" style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontFamily: bod, whiteSpace: 'nowrap' }}>{user.name}</span>
         </div>
         <button onClick={onSignOut}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1px solid rgba(255,255,255,0.11)', borderRadius: 6, padding: '7px 14px', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: 12, fontFamily: bod, whiteSpace: 'nowrap', flexShrink: 0, transition: 'border-color 0.2s, color 0.2s' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1px solid rgba(255,255,255,0.11)', borderRadius: 6, padding: '7px 14px', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', fontSize: 12, fontFamily: bod, whiteSpace: 'nowrap', flexShrink: 0, transition: 'border-color 0.2s, color 0.2s' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = ORANGE; e.currentTarget.style.color = ORANGE }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.11)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}>
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.11)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)' }}>
           <LogOut size={13} /> Sign out
         </button>
       </div>
@@ -121,7 +121,7 @@ function CredentialCard({ user }: { user: MemberProfile }) {
 
       {/* Name + tier */}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <p style={{ fontFamily: bod, fontSize: 10, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>
+        <p style={{ fontFamily: bod, fontSize: 10, color: 'rgba(255,255,255,0.72)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>
           {user.tier} Member
         </p>
         <h3 style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(22px, 2.4vw, 30px)', color: WHITE, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
@@ -135,21 +135,21 @@ function CredentialCard({ user }: { user: MemberProfile }) {
 
       {/* Member ID — embossed, monospaced, the way it reads on a card face */}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: bod, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6 }}>Member ID</div>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.65)', fontFamily: bod, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6 }}>Member ID</div>
         <div style={{ fontFamily: MONO, fontSize: 17, fontWeight: 600, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.94)', textShadow: '0 1px 0 rgba(0,0,0,0.4)' }}>{user.memberId}</div>
       </div>
 
       {/* Footer meta */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 14 }}>
         <div>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.26)', fontFamily: bod, marginBottom: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Member since</div>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.65)', fontFamily: bod, marginBottom: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Member since</div>
           <div style={{ fontFamily: MONO, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{formatJoinDate(user.joinedAt)}</div>
         </div>
         <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', display: 'grid', placeItems: 'center', fontFamily: dis, fontWeight: 800, fontSize: 12, color: WHITE, flexShrink: 0 }}>
           {initials}
         </div>
       </div>
-      <span style={{ position: 'relative', zIndex: 1, fontSize: 9, color: 'rgba(255,255,255,0.16)', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: bod }}>
+      <span style={{ position: 'relative', zIndex: 1, fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: bod }}>
         Africa Institute of Personal &amp; Executive Assistants
       </span>
     </div>
@@ -229,6 +229,58 @@ function FeatureCard({ iconColor, icon, title, desc, status }: { iconColor: stri
   )
 }
 
+// --- Organisation (editable, since members change employers) ------------------
+
+function OrganisationLine({ organisation }: { organisation: string }) {
+  const [editing, setEditing] = useState(false)
+  const [value, setValue] = useState(organisation)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  async function save() {
+    setSaving(true)
+    setError('')
+    try {
+      await updateOrganisation(value)
+      setEditing(false)
+    } catch {
+      setError('Could not save. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const linkBtn: React.CSSProperties = { background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: bod, fontSize: 13, color: ORANGE_ON_DARK, textDecoration: 'underline' }
+
+  if (editing) {
+    return (
+      <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+        <input
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          placeholder="Where you currently work"
+          aria-label="Organisation"
+          style={{ fontFamily: bod, fontSize: 14, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.35)', background: 'rgba(255,255,255,0.1)', color: WHITE, minWidth: 220 }}
+        />
+        <button onClick={save} disabled={saving} style={linkBtn}>{saving ? 'Saving…' : 'Save'}</button>
+        <button onClick={() => { setValue(organisation); setEditing(false); setError('') }} style={linkBtn}>Cancel</button>
+        {error && <span style={{ fontFamily: bod, fontSize: 12, color: '#fecaca' }}>{error}</span>}
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+      <span style={{ fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>
+        {organisation ? organisation : 'No organisation added yet'}
+      </span>
+      <button onClick={() => { setValue(organisation); setEditing(true) }} style={linkBtn}>
+        {organisation ? 'Change' : 'Add your organisation'}
+      </button>
+    </div>
+  )
+}
+
 // --- Dashboard ----------------------------------------------------------------
 
 export default function Dashboard() {
@@ -264,12 +316,21 @@ export default function Dashboard() {
 
           {/* Left: greeting */}
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <motion.p {...f(0.04)} style={{ fontFamily: bod, fontSize: 15, color: 'rgba(255,255,255,0.45)', marginBottom: 12 }}>
+            <motion.p {...f(0.04)} style={{ fontFamily: bod, fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: 12 }}>
               {greeting()}
             </motion.p>
-            <motion.h1 {...f(0.14)} style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(44px, 5.5vw, 74px)', color: WHITE, letterSpacing: '-0.025em', lineHeight: 1.04, marginBottom: 28 }}>
+            <motion.h1 {...f(0.14)} style={{ fontFamily: dis, fontWeight: 800, fontSize: 'clamp(44px, 5.5vw, 74px)', color: WHITE, letterSpacing: '-0.025em', lineHeight: 1.04, marginBottom: 16 }}>
               {firstName(user.name)}.
             </motion.h1>
+
+            <motion.div {...f(0.2)} style={{ marginBottom: 24 }}>
+              <Link href="/membership#tiers"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: ORANGE, color: WHITE, fontFamily: dis, fontWeight: 700, fontSize: 13, padding: '10px 20px', borderRadius: 8, textDecoration: 'none', transition: 'background 0.2s', whiteSpace: 'nowrap' }}
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.background = ORANGE_DIM)}
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.background = ORANGE)}>
+                Compare membership tiers <ArrowRight size={14} />
+              </Link>
+            </motion.div>
 
             <motion.div {...f(0.26)} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.28)', borderRadius: 100, padding: '6px 14px' }}>
@@ -282,13 +343,17 @@ export default function Dashboard() {
             </motion.div>
 
             <motion.div {...f(0.36)} style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
-              <span style={{ fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>{user.memberId}</span>
+              <span style={{ fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>{user.memberId}</span>
               <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', flexShrink: 0 }} />
-              <span style={{ fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Since {formatJoinDate(user.joinedAt)}</span>
+              <span style={{ fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>Since {formatJoinDate(user.joinedAt)}</span>
               {user.country && <>
                 <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', flexShrink: 0 }} />
-                <span style={{ fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>{user.country}</span>
+                <span style={{ fontFamily: bod, fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>{user.country}</span>
               </>}
+            </motion.div>
+
+            <motion.div {...f(0.42)}>
+              <OrganisationLine organisation={user.organisation} />
             </motion.div>
           </div>
 
@@ -310,7 +375,7 @@ export default function Dashboard() {
             sub={user.recommendedTrack ? user.recommendedTrack.name : 'Complete the Track Finder'}
             tint="navy"
           />
-          <StatTile label="Member since" value={formatJoinDate(user.joinedAt)} sub="Founding cohort" />
+          <StatTile label="Member since" value={formatJoinDate(user.joinedAt)} />
         </div>
       </section>
 
@@ -326,9 +391,6 @@ export default function Dashboard() {
                 What we&apos;re building for you.
               </h2>
             </div>
-            <p style={{ fontFamily: bod, fontSize: 14, color: MUTED, maxWidth: 210, textAlign: 'right', lineHeight: 1.65 }}>
-              As a founding member, each drops for you first.
-            </p>
           </div>
 
           {/* Track Finder prompt */}
@@ -359,10 +421,10 @@ export default function Dashboard() {
           {/* Feature roadmap — status-tagged so each card states its real build state */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }} className="aipea-features-row">
             {([
-              { iconColor: ORANGE,    icon: <Users     size={18} color={ORANGE} />,    title: 'Member Directory',    desc: 'Connect with executive assistants across the AIPEA network as it grows.', status: 'Building' as const },
-              { iconColor: NAVY_DARK, icon: <BarChart3 size={18} color={NAVY_DARK} />, title: 'CPD Tracker',         desc: 'Log your professional development hours once the CPD framework is finalised.', status: 'Building' as const },
+              { iconColor: ORANGE,    icon: <Users     size={18} color={ORANGE} />,    title: 'Member Directory',    desc: 'Connect with other professionals across the AIPEA network.', status: 'Building' as const },
+              { iconColor: NAVY_DARK, icon: <BarChart3 size={18} color={NAVY_DARK} />, title: 'CPD Tracker',         desc: 'Log your professional development hours.', status: 'Building' as const },
               { iconColor: '#7c3aed', icon: <BookOpen  size={18} color="#7c3aed" />,   title: 'Course Library',      desc: 'Certification-backed courses built specifically for assistants in Africa.', status: 'Planned' as const },
-              { iconColor: '#059669', icon: <Calendar  size={18} color="#059669" />,   title: 'Events & Conference', desc: 'AIPEA Conference 2027 in Accra, plus member meetups as the calendar is confirmed.', status: 'Building' as const },
+              { iconColor: '#059669', icon: <Calendar  size={18} color="#059669" />,   title: 'Events & Conferences', desc: 'AIPEA Conferences plus member meet-ups and virtual sessions. Check the calendar for more.', status: 'Building' as const },
             ]).map((card, i) => (
               <motion.div key={card.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.62, delay: 0.08 + i * 0.07, ease: EASE }} style={{ height: '100%' }}>
                 <FeatureCard {...card} />
@@ -370,19 +432,6 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Early member strip */}
-          <div style={{ marginTop: 44, padding: '28px 36px', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
-            <div>
-              <h3 style={{ fontFamily: dis, fontWeight: 700, fontSize: 17, color: TEXT, letterSpacing: '-0.01em' }}>You joined early.</h3>
-              <p style={{ fontFamily: bod, fontSize: 14, color: MUTED, marginTop: 4 }}>Every feature comes to you first, at your current rate, permanently.</p>
-            </div>
-            <Link href="/#membership"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: ORANGE, color: WHITE, fontFamily: dis, fontWeight: 700, fontSize: 13, padding: '11px 22px', borderRadius: 8, textDecoration: 'none', transition: 'background 0.2s', whiteSpace: 'nowrap' }}
-              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.background = ORANGE_DIM)}
-              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.background = ORANGE)}>
-              Compare membership tiers <ArrowRight size={14} />
-            </Link>
-          </div>
         </div>
       </section>
     </div>
