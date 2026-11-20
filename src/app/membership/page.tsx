@@ -19,8 +19,8 @@ const why = [
     title: 'Earn the credence you have already worked for',
     desc: 'You protect bottom lines, synchronise C-Suite priorities and drive operational momentum. AIPEA gives that experience formal corporate backing.',
     points: [
-      'Accountability-based designations that signal your exact level of strategic impact',
-      'A verified place on the AIPEA Continental Registry as it is built',
+      'Accountability-based designations that signal your exact level of impact',
+      'A verified place on the AIPEA Continental Registry',
       'Recognition measured by scope and execution, not years at a desk',
     ],
   },
@@ -32,7 +32,7 @@ const why = [
     points: [
       'The Pan-African Bridge across West, East, Central, South and North Africa — Anglophone and Francophone',
       'Physical and virtual meetups grounded in authenticity and peer exchange',
-      'Priority access and member rates for the annual Pan-African Conference',
+      'Priority and access rates for AIPEA Conferences',
     ],
   },
   {
@@ -43,7 +43,7 @@ const why = [
     points: [
       'Structured 6, 9 and 12-month tracks for Personal Assistants, Executive Assistants and Chiefs of Staff',
       'AI and tech synchronisation for the modern executive office',
-      'Every module ends in a workplace-deployable artifact your employer can use',
+      'Every module ends in a workplace-deployable skill you can use for the benefit of your employer',
     ],
   },
   {

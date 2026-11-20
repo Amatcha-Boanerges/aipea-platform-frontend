@@ -2,7 +2,7 @@
 
 import { Fragment } from 'react'
 import Image from 'next/image'
-import { Layers, ClipboardCheck, BadgeCheck, ArrowRight, ArrowLeft, CornerRightDown } from 'lucide-react'
+import { Layers, ClipboardCheck, ArrowRight, ArrowLeft, CornerRightDown } from 'lucide-react'
 import { C, dis, bod, INNER, SECTION } from '@/components/site/tokens'
 import {
   PageShell, PageHero, SectionHeading, SplitFeature, StatBand, CTASection,
@@ -244,12 +244,11 @@ export default function CertificationPage() {
           <SplitFeature
             image="/images/conference/optimized/recognition.jpg"
             eyebrow="The AIPEA Continental Registry"
-            title="A cross-border register of licensed partners."
-            body="The Registry is a directory of verified, licensed corporate partners, built so an AIPEA designation carries the same weight in Accra, Lagos, Abidjan or Nairobi. Digital verification for employers is in development."
+            title="A cross-border register of certified partners."
+            body="The registry is a directory of certified partners."
             points={[
-              'Every certified member holds a unique AIPEA member ID',
-              'Built as a bilingual bridge for Anglophone and Francophone members',
-              'Employer-facing credential verification is being built',
+              'Every certified member earns the right to use the professional designation after their name',
+              'Employer-facing credential verification',
             ]}
             cta={{ label: 'Contact the Secretariat', href: '/about#contact' }}
           />
@@ -269,16 +268,14 @@ export default function CertificationPage() {
       <section id="cpd" style={{ ...SECTION, background: C.surface }}>
         <div style={INNER}>
           <SectionHeading
-            eyebrow="Continuing professional development"
-            title="The CPD framework is being defined."
-            aside="AIPEA is finalising CPD hours, renewal periods and categories. We would rather publish the framework once than publish numbers that change."
+            eyebrow="Continuous professional development"
+            title="The CPD framework."
           />
           <Reveal>
             <div style={{ maxWidth: 720, margin: '0 auto', display: 'grid', gap: 12 }}>
               {[
                 { icon: Layers, title: 'What is settled', desc: 'Certification is accountability-based, and designations are earned through assessed coursework and a defended capstone.' },
                 { icon: ClipboardCheck, title: 'What is being defined', desc: 'The number of CPD hours, the renewal period and the categories that count toward them.' },
-                { icon: BadgeCheck, title: 'What happens next', desc: 'The framework will be published here in full once the Governing Council signs it off.' },
               ].map((row, i) => {
                 const Icon = row.icon
                 return (
