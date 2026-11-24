@@ -5,6 +5,7 @@ import {
   type HorizonId,
   type ScopeLevel,
   type AuditProfile,
+  type AuditScores,
   type TrackFinderResult,
 } from './trackFinder'
 
@@ -149,11 +150,12 @@ export async function saveScopeAudit(
   horizon: HorizonId,
   scope: ScopeLevel,
   auditProfile: AuditProfile | null = null,
+  scores?: AuditScores,
 ): Promise<TrackFinderResult> {
   const session = backend.getSession()
   if (!session) throw new Error('You must be signed in to save your track audit.')
 
-  const result = resolveTrack(horizon, scope)
+  const result = resolveTrack(horizon, scope, scores)
   const now = new Date().toISOString()
   const auditId = backend.addScopeAudit(session.uid, buildScopeAuditRecord(result, now, auditProfile))
   backend.updateProfileFields(session.uid, {

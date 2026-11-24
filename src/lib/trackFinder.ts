@@ -31,6 +31,8 @@ export const EMPTY_AUDIT_PROFILE: AuditProfile = {
   industry: '', reportingLevel: '', deliveryFormat: '', sponsorship: '',
 }
 
+export const COUNTRIES = `Afghanistan|Albania|Algeria|Andorra|Angola|Antigua and Barbuda|Argentina|Armenia|Australia|Austria|Azerbaijan|Bahamas|Bahrain|Bangladesh|Barbados|Belarus|Belgium|Belize|Benin|Bhutan|Bolivia|Bosnia and Herzegovina|Botswana|Brazil|Brunei|Bulgaria|Burkina Faso|Burundi|Cabo Verde|Cambodia|Cameroon|Canada|Central African Republic|Chad|Chile|China|Colombia|Comoros|Congo (Brazzaville)|Congo (Kinshasa)|Costa Rica|Côte d’Ivoire|Croatia|Cuba|Cyprus|Czechia|Denmark|Djibouti|Dominica|Dominican Republic|Ecuador|Egypt|El Salvador|Equatorial Guinea|Eritrea|Estonia|Eswatini|Ethiopia|Fiji|Finland|France|Gabon|Gambia|Georgia|Germany|Ghana|Greece|Grenada|Guatemala|Guinea|Guinea-Bissau|Guyana|Haiti|Honduras|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kiribati|Kosovo|Kuwait|Kyrgyzstan|Laos|Latvia|Lebanon|Lesotho|Liberia|Libya|Liechtenstein|Lithuania|Luxembourg|Madagascar|Malawi|Malaysia|Maldives|Mali|Malta|Marshall Islands|Mauritania|Mauritius|Mexico|Micronesia|Moldova|Monaco|Mongolia|Montenegro|Morocco|Mozambique|Myanmar|Namibia|Nauru|Nepal|Netherlands|New Zealand|Nicaragua|Niger|Nigeria|North Korea|North Macedonia|Norway|Oman|Pakistan|Palau|Palestine|Panama|Papua New Guinea|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Rwanda|Saint Kitts and Nevis|Saint Lucia|Saint Vincent and the Grenadines|Samoa|San Marino|São Tomé and Príncipe|Saudi Arabia|Senegal|Serbia|Seychelles|Sierra Leone|Singapore|Slovakia|Slovenia|Solomon Islands|Somalia|South Africa|South Korea|South Sudan|Spain|Sri Lanka|Sudan|Suriname|Sweden|Switzerland|Syria|Taiwan|Tajikistan|Tanzania|Thailand|Timor-Leste|Togo|Tonga|Trinidad and Tobago|Tunisia|Türkiye|Turkmenistan|Tuvalu|Uganda|Ukraine|United Arab Emirates|United Kingdom|United States|Uruguay|Uzbekistan|Vanuatu|Vatican City|Venezuela|Vietnam|Yemen|Zambia|Zimbabwe`.split('|')
+
 export const INDUSTRIES = [
   'Banking & Financial Services', 'Oil & Gas / Energy', 'Public Sector & Government',
   'Telecommunications & Tech', 'Non-Profit & Development (NGOs)', 'FMCG & Retail',
@@ -45,13 +47,13 @@ export const REPORTING_LEVELS = [
 ]
 
 export const DELIVERY_FORMATS = [
-  'In-person Saturday sessions (Accra, Ghana)',
-  'Live online evening seminars (Pan-African cohort)',
+  'In-Person Saturday Sessions (Accra, Ghana)',
+  'Live Online Evening Seminars (Pan-African Regional Cohort)',
 ]
 
 export const SPONSORSHIPS = [
-  'Self-funded professional',
-  'Employer / corporate-funded',
+  'Self-Funded Professional',
+  'Employer / Corporate-Funded',
   'Sponsored, other',
 ]
 
@@ -83,67 +85,66 @@ export type AuditQuestion = {
 export const AUDIT_QUESTIONS: AuditQuestion[] = [
   {
     id: 'focus',
-    topic: 'Primary focus',
-    headline: 'What best describes the main problem you are hired to solve every day?',
+    topic: 'Primary Horizon & Focus',
+    headline: 'What best describes the primary problem domain you are hired to solve every day?',
     options: [
-      { text: 'I remove friction from an executive’s daily execution: schedules, travel, inboxes, administrative workflows and immediate task lists.', score: { pa: 3, base: 1 } },
-      { text: 'I bridge C-Suite vision and operational diplomacy: board and VIP communications, executive briefs and cross-functional alignment.', score: { ea: 3, senior: 1 } },
-      { text: 'I act as an enterprise integrator: building automated software pipelines, managing project portfolios, directing post-merger integrations or driving institutional growth.', score: { cos: 3, senior: 2 } },
+      { text: 'I eliminate friction in an executive’s daily execution—managing schedules, travel, inboxes, administrative workflows, and immediate task lists.', score: { pa: 3, base: 1 } },
+      { text: 'I bridge C-Suite vision and operational diplomacy—managing board/VIP communications, synthesizing executive briefs, and driving cross-functional alignment.', score: { ea: 3, senior: 1 } },
+      { text: 'I act as an enterprise integrator—architecting automated software pipelines, managing project portfolios, directing post-merger integrations, or driving institutional growth.', score: { cos: 3, senior: 2 } },
     ],
   },
   {
     id: 'budget',
-    topic: 'Financial authority',
-    headline: 'What is your direct accountability for company money and budgets?',
+    topic: 'Financial & Budgetary Authority',
+    headline: 'What is your direct level of accountability regarding company money and budgets?',
     options: [
-      { text: 'I manage petty cash, process individual travel expenses and reconcile executive credit card statements.', score: { pa: 2, base: 2 } },
-      { text: 'I oversee departmental vendor SLAs, negotiate administrative service contracts and manage office asset budgets.', score: { pa: 1, senior: 2 } },
-      { text: 'I track C-Suite operational budgets, audit variances on executive spending and help prepare board-level financial reports.', score: { ea: 2, senior: 1 } },
-      { text: 'I design and defend enterprise operating budgets, manage capital expenditure plans, or source international grants and fundraising resources.', score: { cos: 3, senior: 2 } },
+      { text: 'I manage operational petty cash, process individual travel expenses, and reconcile executive credit card statements.', score: { pa: 2, base: 2 } },
+      { text: 'I oversee departmental vendor SLAs, negotiate administrative service contracts, and manage office asset budgets.', score: { pa: 1, senior: 2 } },
+      { text: 'I track C-Suite operational budgets, perform variance auditing on executive expenditures, and assist with board-level financial reports.', score: { ea: 2, senior: 1 } },
+      { text: 'I design and defend enterprise operational budgets, manage capital expenditure plans, or source international development grants and fundraising resources.', score: { cos: 3, senior: 2 } },
     ],
   },
   {
     id: 'governance',
-    topic: 'Governance and meetings',
-    headline: 'How involved are you in your organisation’s governance and high-stakes meetings?',
+    topic: 'Governance & Meeting Architecture',
+    headline: "How involved are you in your organization's governance and high-stakes meetings?",
     options: [
-      { text: 'I handle venue setup, diary scheduling, catering and guest logistics for team or executive meetings.', score: { pa: 2, base: 2 } },
-      { text: 'I compile board packs, draft minutes to statutory standard and maintain the post-meeting action tracker.', score: { ea: 3, base: 1 } },
-      { text: 'I enforce governance policies across divisions, audit board committee structures and ensure executives comply with board directives.', score: { ea: 1, senior: 2 } },
-      { text: 'I sit in executive and board meetings as the CEO’s strategic proxy, resolving deadlocks and directing department heads on resolutions.', score: { cos: 3, senior: 2 } },
+      { text: 'I handle venue setup, diary scheduling, catering, and guest logistics for team or executive meetings.', score: { pa: 2, base: 2 } },
+      { text: 'I compile board packs, draft legally binding minutes to statutory standards, and maintain the post-meeting action item tracker.', score: { ea: 3, base: 1 } },
+      { text: 'I enforce corporate governance policies across divisions, audit board committee structures, and ensure executive compliance across board directives.', score: { ea: 1, senior: 2 } },
+      { text: 'I sit in high-level executive/board meetings as a strategic proxy for the CEO, resolving deadlocks and directing department heads on resolutions.', score: { cos: 3, senior: 2 } },
     ],
   },
   {
     id: 'technology',
-    topic: 'Technology',
-    headline: 'How do you use digital systems and technology in your work?',
+    topic: 'Technology & Automation Ecosystem',
+    headline: 'How do you leverage digital systems and technology in your work?',
     options: [
-      { text: 'I use standard productivity tools (Microsoft 365, Google Workspace) and AI prompts to draft communications, filter inboxes and organise calendars.', score: { pa: 2, base: 2 } },
-      { text: 'I build and manage shared project dashboards (Asana, Monday.com, Notion) to track cross-departmental deliverables.', score: { ea: 2, senior: 1 } },
-      { text: 'I connect multi-platform software (Zapier, Power Automate, Salesforce) to run autonomous executive-office workflows.', score: { cos: 3, base: 1 } },
-      { text: 'I use machine learning models to analyse enterprise workflows, remove bottlenecks and safeguard digital assets.', score: { cos: 3, senior: 2 } },
+      { text: 'I use standard productivity tools (Microsoft 365, Google Workspace) and AI prompts to draft communications, filter inboxes, and organize calendars.', score: { pa: 2, base: 2 } },
+      { text: 'I build and manage shared project tracking dashboards (Asana, Monday.com, Notion) to monitor cross-departmental deliverables.', score: { ea: 2, senior: 1 } },
+      { text: 'I connect multi-platform software architectures (Zapier, Microsoft Power Automate, Salesforce) to run autonomous executive office workflows.', score: { cos: 3, base: 1 } },
+      { text: 'I utilize machine learning data models to perform enterprise workflow analysis, remove operational bottlenecks, and safeguard digital asset security.', score: { cos: 3, senior: 2 } },
     ],
   },
   {
     id: 'leadership',
-    topic: 'Leadership and scope',
+    topic: 'Stakeholder Leadership & Team Scope',
     headline: 'What level of leadership do you exercise over people and operational culture?',
     options: [
-      { text: 'I work as a solo, high-touch operator dedicated to the smooth daily functioning of my immediate leader.', score: { pa: 2, base: 2 } },
-      { text: 'I supervise, mentor and set performance targets for junior administrative staff, receptionists or office support pools.', score: { pa: 1, senior: 2 } },
-      { text: 'I manage high-stakes external relationships with investors, board members, regulators and government officials on behalf of the C-Suite.', score: { ea: 3, senior: 1 } },
-      { text: 'I direct cross-functional project teams, oversee restructuring initiatives and coach the company’s administrative pipeline.', score: { cos: 3, senior: 2 } },
+      { text: 'I work as a solo high-touch operator dedicated to the smooth daily functioning of my immediate leader.', score: { pa: 2, base: 2 } },
+      { text: 'I supervise, mentor, and set performance KPIs for junior administrative staff, receptionists, or office support pools.', score: { pa: 1, senior: 2 } },
+      { text: 'I manage high-stakes external relationships with investors, board members, regulatory bodies, and government officials on behalf of the C-Suite.', score: { ea: 3, senior: 1 } },
+      { text: "I direct cross-functional project teams, oversee corporate restructuring initiatives, and coach the company's administrative pipeline.", score: { cos: 3, senior: 2 } },
     ],
   },
 ]
 
-/**
- * Turns the five chosen option indexes into a strand and level.
- * Ties between strands resolve in the spec's order (PA, then EA, then CoS);
- * the Senior designation is returned only when Senior strictly beats Base.
- */
-export function scoreAudit(answers: number[]): { horizon: HorizonId; scope: ScopeLevel } {
-  const t = { pa: 0, ea: 0, cos: 0, base: 0, senior: 0 }
+/** Running totals for the two routing axes (spec: PA_Score ... Senior_Score). */
+export type AuditScores = { pa: number; ea: number; cos: number; base: number; senior: number }
+
+/** Adds up the points of the five chosen options. */
+export function tallyScores(answers: number[]): AuditScores {
+  const t: AuditScores = { pa: 0, ea: 0, cos: 0, base: 0, senior: 0 }
   AUDIT_QUESTIONS.forEach((q, i) => {
     const s = q.options[answers[i]]?.score
     if (!s) return
@@ -153,9 +154,23 @@ export function scoreAudit(answers: number[]): { horizon: HorizonId; scope: Scop
     t.base += s.base ?? 0
     t.senior += s.senior ?? 0
   })
+  return t
+}
+
+/**
+ * The spec's decision tree. Axis 1 picks the strand with the highest score
+ * (ties resolve PA, then EA, then CoS, the order the spec tests them in).
+ * Axis 2 picks the Senior designation only when Senior strictly beats Base.
+ */
+export function routeDesignation(t: AuditScores): { horizon: HorizonId; scope: ScopeLevel } {
   const top = Math.max(t.pa, t.ea, t.cos)
   const horizon: HorizonId = t.pa === top ? 1 : t.ea === top ? 2 : 3
   return { horizon, scope: t.senior > t.base ? 'B' : 'A' }
+}
+
+export function scoreAudit(answers: number[]): { horizon: HorizonId; scope: ScopeLevel; scores: AuditScores } {
+  const scores = tallyScores(answers)
+  return { ...routeDesignation(scores), scores }
 }
 
 export type TrackFinderResult = {
@@ -170,6 +185,8 @@ export type TrackFinderResult = {
   coreValueDriver: string
   /** Email: DYNAMIC_BULLET_1..3 */
   bullets: [string, string, string]
+  /** Raw axis scores behind the result (absent when resumed from a saved audit). */
+  scores?: AuditScores
 }
 
 const RESULT_COPY: Record<
@@ -237,7 +254,7 @@ const RESULT_COPY: Record<
   },
 }
 
-export function resolveTrack(horizon: HorizonId, scope: ScopeLevel): TrackFinderResult {
+export function resolveTrack(horizon: HorizonId, scope: ScopeLevel, scores?: AuditScores): TrackFinderResult {
   const strand = STRANDS[horizon - 1]
   const track = strand.tracks[scope === 'A' ? 0 : 1]
   const copy = RESULT_COPY[horizon]
@@ -250,6 +267,41 @@ export function resolveTrack(horizon: HorizonId, scope: ScopeLevel): TrackFinder
     problemSolved: copy.problemSolved,
     coreValueDriver: copy.coreValueDriver,
     bullets: copy.bullets[scope],
+    scores,
+  }
+}
+
+/** The one prospectus on file. Per-designation prospectuses come from the client. */
+export const PROSPECTUS_URL = '/docs/aipea-2026-prospectus.pdf'
+
+/** Spec section 4: the dynamic Pathfinder result payload. */
+export type PathfinderPayload = {
+  user_tier_result: string
+  designation_title: string
+  strand: string
+  duration: string
+  primary_focus: string
+  capstone_project: string
+  downloadable_prospectus: string
+  /** null until the "Letter to Your Boss" PDFs exist; the UI falls back to a request email. */
+  hr_justification_pack: string | null
+}
+
+/** Designation-specific primary focus. The spec only supplies SCEA; the rest use the strand-level focus. */
+const PRIMARY_FOCUS_OVERRIDE: Record<string, string> = {
+  SCEA: 'Business Capability Integration & Governance',
+}
+
+export function buildPathfinderPayload(result: TrackFinderResult): PathfinderPayload {
+  return {
+    user_tier_result: result.track.acronym,
+    designation_title: result.track.name,
+    strand: result.strand.name,
+    duration: result.strand.duration.replace(/^(\d+) months/, '$1 Months'),
+    primary_focus: PRIMARY_FOCUS_OVERRIDE[result.track.acronym] ?? result.coreFocus,
+    capstone_project: result.track.capstone.name,
+    downloadable_prospectus: PROSPECTUS_URL,
+    hr_justification_pack: null,
   }
 }
 
@@ -299,6 +351,8 @@ export type ScopeAuditRecord = {
   coreValueDriver: string
   bullets: [string, string, string]
   profile: AuditProfile | null
+  scores: AuditScores | null
+  payload: PathfinderPayload
   createdAt: unknown
 }
 
@@ -316,6 +370,8 @@ export function buildScopeAuditRecord(result: TrackFinderResult, createdAt: unkn
     coreValueDriver: result.coreValueDriver,
     bullets: result.bullets,
     profile,
+    scores: result.scores ?? null,
+    payload: buildPathfinderPayload(result),
     createdAt,
   }
 }

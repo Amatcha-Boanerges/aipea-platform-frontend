@@ -16,11 +16,10 @@ import { CONTACT, ORG } from '@/lib/facts'
 import {
   AUDIT_QUESTIONS, resolveTrack, scoreAudit,
   savePendingScopeAudit, getPendingScopeAudit, clearPendingScopeAudit,
-  EMPTY_AUDIT_PROFILE, INDUSTRIES, REPORTING_LEVELS, DELIVERY_FORMATS, SPONSORSHIPS, EMPLOYER_FUNDED,
+  buildPathfinderPayload, EMPTY_AUDIT_PROFILE, COUNTRIES, INDUSTRIES, REPORTING_LEVELS, DELIVERY_FORMATS, SPONSORSHIPS, EMPLOYER_FUNDED,
   type AuditProfile, type TrackFinderResult,
 } from '@/lib/trackFinder'
 
-const PROSPECTUS_HREF = '/docs/aipea-2026-prospectus.pdf'
 const JUSTIFICATION_MAIL = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Request: Letter to Your Boss Justification Pack')}&body=${encodeURIComponent('Hello Secretariat,\n\nI have completed my AIPEA Professional Scope Audit and would like the corporate justification pack to share with my HR Director / Executive.\n\nThank you.')}`
 
 const TOTAL = AUDIT_QUESTIONS.length
@@ -99,8 +98,8 @@ export default function TrackFinderPage() {
       setIndex(index + 1)
       return
     }
-    const { horizon, scope } = scoreAudit(next)
-    setResult(resolveTrack(horizon, scope))
+    const { horizon, scope, scores } = scoreAudit(next)
+    setResult(resolveTrack(horizon, scope, scores))
     setSaved(false)
     setError('')
     setCelebrateKey((k) => k + 1)
@@ -110,13 +109,22 @@ export default function TrackFinderPage() {
     e.preventDefault()
     if (!values.name.trim()) { setFormError('Please enter your full name.'); return }
     if (!/^\S+@\S+\.\S+$/.test(values.email.trim())) { setFormError('Please enter a valid email address.'); return }
-    if (!values.country.trim()) { setFormError('Please enter your country.'); return }
+    if (!values.country.trim()) { setFormError('Please select your country of residence.'); return }
+    if (!values.city.trim()) { setFormError('Please enter your city or region.'); return }
     setFormError('')
     setStage('org')
   }
 
   function submitOrg(e: FormEvent) {
     e.preventDefault()
+    const missing: [string, string][] = [
+      [values.jobTitle, 'your current job title'], [values.employer, 'your employer'],
+      [values.industry, 'your industry'], [values.reportingLevel, 'who you report to'],
+      [values.deliveryFormat, 'your preferred delivery format'], [values.sponsorship, 'your sponsorship pathway'],
+    ]
+    const first = missing.find(([v]) => !v.trim())
+    if (first) { setFormError(`Please tell us ${first[1]}.`); return }
+    setFormError('')
     setStage('questions')
   }
 
@@ -142,7 +150,7 @@ export default function TrackFinderPage() {
 
     setSaving(true)
     try {
-      await saveScopeAudit(horizon, scope, values)
+      await saveScopeAudit(horizon, scope, values, result.scores)
       clearPendingScopeAudit()
       setSaved(true)
     } catch (err) {
@@ -153,6 +161,8 @@ export default function TrackFinderPage() {
   }
 
   const question = AUDIT_QUESTIONS[index]
+  // Spec section 4: everything the result screen shows comes from this payload.
+  const payload = result ? buildPathfinderPayload(result) : null
 
   return (
     <PageShell>
@@ -223,18 +233,16 @@ export default function TrackFinderPage() {
           {!result && stage === 'bio' && (
             <motion.form key="bio" onSubmit={submitBio} noValidate initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }} style={{ maxWidth: 720, margin: '0 auto' }}>
               <StepBar total={2} current={1} />
-              <p style={stepEyebrow}>Step 1 of 2 · Bio &amp; contact</p>
+              <p style={stepEyebrow}>Step 1 of 2 · Bio &amp; Contact Profile</p>
               <h2 style={stepTitle}>Tell us a little about you.</h2>
-              <p style={stepIntro}>Name, email and country are required. Then one more short step and five questions.</p>
+              <p style={stepIntro}>Everything except your phone number is required. Then one more short step and five questions.</p>
 
               <div style={{ display: 'grid', gap: 16, marginTop: 28 }}>
-                <TextField label="Full name" required value={values.name} onChange={setField('name')} autoComplete="name" />
-                <TextField label="Email address" required type="email" value={values.email} onChange={setField('email')} autoComplete="email" />
-                <TextField label="Country of residence" required value={values.country} onChange={setField('country')} autoComplete="country-name" placeholder="Ghana" />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="aipea-feature-grid">
-                  <TextField label="Phone / WhatsApp (optional)" type="tel" value={values.phone} onChange={setField('phone')} autoComplete="tel" />
-                  <TextField label="City / region (optional)" value={values.city} onChange={setField('city')} autoComplete="address-level2" />
-                </div>
+                <TextField label="Full Name" required value={values.name} onChange={setField('name')} autoComplete="name" />
+                <TextField label="Reliable Email Address" required type="email" value={values.email} onChange={setField('email')} autoComplete="email" />
+                <TextField label="Phone Number / WhatsApp (Optional)" type="tel" value={values.phone} onChange={setField('phone')} autoComplete="tel" />
+                <SelectField label="Country of Residence" required value={values.country} onChange={setField('country')} options={COUNTRIES} placeholder="Select your country…" />
+                <TextField label="City / Region" required value={values.city} onChange={setField('city')} autoComplete="address-level2" />
               </div>
 
               {formError && <p role="alert" style={errorBox}>{formError}</p>}
@@ -248,27 +256,21 @@ export default function TrackFinderPage() {
           {!result && stage === 'org' && (
             <motion.form key="org" onSubmit={submitOrg} noValidate initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE }} style={{ maxWidth: 720, margin: '0 auto' }}>
               <StepBar total={2} current={2} />
-              <p style={stepEyebrow}>Step 2 of 2 · Professional context</p>
+              <p style={stepEyebrow}>Step 2 of 2 · Professional &amp; Organizational Context</p>
               <h2 style={stepTitle}>Where do you work?</h2>
-              <p style={stepIntro}>Everything here is optional. It helps us place you in the right cohort.</p>
+              <p style={stepIntro}>This helps us place you in the right cohort.</p>
 
               <div style={{ display: 'grid', gap: 16, marginTop: 28 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="aipea-feature-grid">
-                  <TextField label="Current job title" value={values.jobTitle} onChange={setField('jobTitle')} placeholder="e.g. Senior Executive Assistant" />
-                  <TextField label="Employer / organisation" value={values.employer} onChange={setField('employer')} autoComplete="organization" />
-                </div>
-                <label style={{ display: 'grid', gap: 6 }}>
-                  <span style={fieldLabel}>Industry / sector</span>
-                  <select value={values.industry} onChange={(e) => setField('industry')(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
-                    <option value="">Select…</option>
-                    {INDUSTRIES.map((o) => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                </label>
+                <TextField label="Current Official Job Title" required value={values.jobTitle} onChange={setField('jobTitle')} placeholder="e.g. Personal Assistant, Senior EA, Chief of Staff" />
+                <TextField label="Current Employer / Organization Name" required value={values.employer} onChange={setField('employer')} autoComplete="organization" />
+                <SelectField label="Industry / Sector" required value={values.industry} onChange={setField('industry')} options={INDUSTRIES} placeholder="Select your industry…" />
               </div>
 
-              <ChoiceGroup label="Who do you directly report to?" options={REPORTING_LEVELS} value={values.reportingLevel} onChange={setField('reportingLevel')} />
-              <ChoiceGroup label="Preferred delivery format" options={DELIVERY_FORMATS} value={values.deliveryFormat} onChange={setField('deliveryFormat')} />
-              <ChoiceGroup label="How will your certification be funded?" options={SPONSORSHIPS} value={values.sponsorship} onChange={setField('sponsorship')} />
+              <ChoiceGroup label="Reporting Level" hint="Who do you directly report to?" options={REPORTING_LEVELS} value={values.reportingLevel} onChange={setField('reportingLevel')} />
+              <ChoiceGroup label="Preferred Delivery Format" options={DELIVERY_FORMATS} value={values.deliveryFormat} onChange={setField('deliveryFormat')} />
+              <ChoiceGroup label="Sponsorship Pathway" options={SPONSORSHIPS} value={values.sponsorship} onChange={setField('sponsorship')} />
+
+              {formError && <p role="alert" style={errorBox}>{formError}</p>}
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', marginTop: 28 }}>
                 <button type="submit" style={{ ...primaryBtn, border: 'none', cursor: 'pointer' }}>Start the audit <ArrowRight size={14} /></button>
@@ -300,12 +302,12 @@ export default function TrackFinderPage() {
                   </h3>
                   <p style={{ fontFamily: dis, fontWeight: 700, fontSize: 18, color: C.orangeOnDark, marginTop: 10 }}>
                     {result.track.acronym}
-                    <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}> · {result.strand.name}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}> · {payload?.strand} · {payload?.duration}</span>
                   </p>
                 </div>
 
                 <div style={{ padding: '32px 40px', display: 'grid', gap: 22 }}>
-                  <MetaRow label="Primary focus" value={result.coreFocus} />
+                  <MetaRow label="Primary focus" value={payload?.primary_focus ?? ''} />
                   <div>
                     <p style={{ fontFamily: dis, fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.faint, marginBottom: 8 }}>Why this fits you</p>
                     <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
@@ -334,7 +336,7 @@ export default function TrackFinderPage() {
                       </p>
                       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 16 }}>
                         <Link href="/dashboard" style={primaryBtn}>Go to dashboard <ArrowRight size={14} /></Link>
-                        <a href={PROSPECTUS_HREF} download style={secondaryBtn}><Download size={14} /> Download prospectus</a>
+                        <a href={payload?.downloadable_prospectus} download style={secondaryBtn}><Download size={14} /> Download prospectus</a>
                       </div>
                     </div>
                   ) : (
@@ -351,6 +353,9 @@ export default function TrackFinderPage() {
                           </Link>
                         </p>
                       )}
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <a href={payload?.downloadable_prospectus} download style={secondaryBtn}><Download size={14} /> Download prospectus</a>
+                      </div>
                       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
                         <button type="button" onClick={retake} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: bod, fontSize: 13, color: C.muted, textDecoration: 'underline' }}>
                           Retake the audit
@@ -369,7 +374,7 @@ export default function TrackFinderPage() {
                     icon={<Download size={18} color={C.orange} />}
                     title="Review your prospectus"
                     body={`Download the curriculum breakdown for the ${result.track.acronym} path.`}
-                    href={PROSPECTUS_HREF}
+                    href={payload?.downloadable_prospectus ?? ''}
                     cta="Download PDF"
                     download
                   />}
@@ -377,7 +382,7 @@ export default function TrackFinderPage() {
                     icon={<Mail size={18} color={C.orange} />}
                     title="Justify corporate funding"
                     body="Over 80% of AIPEA delegates receive partial or full sponsorship from their employers. Request the Letter to Your Boss pack."
-                    href={JUSTIFICATION_MAIL}
+                    href={payload?.hr_justification_pack ?? JUSTIFICATION_MAIL}
                     cta="Request justification pack"
                   />
                 </div>
@@ -458,18 +463,35 @@ function TextField({ label, value, onChange, required, type = 'text', placeholde
   )
 }
 
-function ChoiceGroup({ label, options, value, onChange }: {
-  label: string; options: string[]; value: string; onChange: (v: string) => void
+function SelectField({ label, value, onChange, options, required, placeholder }: {
+  label: string; value: string; onChange: (v: string) => void; options: string[]; required?: boolean; placeholder: string
+}) {
+  // A prefilled value that is not in the list (e.g. typed at sign-up) stays selectable.
+  const list = value && !options.includes(value) ? [value, ...options] : options
+  return (
+    <label style={{ display: 'grid', gap: 6 }}>
+      <span style={fieldLabel}>{label}{required && <span style={{ color: C.orange }}> *</span>}</span>
+      <select value={value} onChange={(e) => onChange(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
+        <option value="">{placeholder}</option>
+        {list.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </label>
+  )
+}
+
+function ChoiceGroup({ label, hint, options, value, onChange }: {
+  label: string; hint?: string; options: string[]; value: string; onChange: (v: string) => void
 }) {
   return (
-    <fieldset style={{ border: 'none', padding: 0, margin: '28px 0 0' }}>
-      <legend style={{ ...fieldLabel, marginBottom: 10 }}>{label}</legend>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+    <div role="radiogroup" aria-label={label} style={{ margin: '28px 0 0' }}>
+      <p style={fieldLabel}>{label}<span style={{ color: C.orange }}> *</span></p>
+      {hint && <p style={{ fontFamily: bod, fontSize: 13.5, color: C.muted, marginTop: 4 }}>{hint}</p>}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
         {options.map((o) => {
           const on = value === o
           return (
             <button
-              key={o} type="button" aria-pressed={on} onClick={() => onChange(on ? '' : o)}
+              key={o} type="button" role="radio" aria-checked={on} onClick={() => onChange(o)}
               style={{
                 cursor: 'pointer', fontFamily: bod, fontSize: 13.5, lineHeight: 1.4, textAlign: 'left',
                 padding: '10px 16px', borderRadius: 999,
@@ -483,7 +505,7 @@ function ChoiceGroup({ label, options, value, onChange }: {
           )
         })}
       </div>
-    </fieldset>
+    </div>
   )
 }
 
